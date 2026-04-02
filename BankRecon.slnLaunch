@@ -1,0 +1,17 @@
+[
+  {
+    "Name": "BankRecon",
+    "Projects": [
+      {
+        "Path": "src\\BankRecon.WebApi\\BankRecon.WebApi.csproj",
+        "Action": "Start",
+        "DebugTarget": "BankRecon.WebApi"
+      },
+      {
+        "Path": "src\\BankRecon.Bsui\\BankRecon.Bsui.csproj",
+        "Action": "Start",
+        "DebugTarget": "BankRecon.Bsui"
+      }
+    ]
+  }
+]

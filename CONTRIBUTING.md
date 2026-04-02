@@ -6,31 +6,42 @@ This document tracks critical items needed to build the BankRecon application fo
 
 ### ✅ Completed Layers
 
+- **Domain Layer** - BaseEntity, SoftDeletableEntity, Domain Interfaces (IHasKey, ICreatable, IUpdatable, ISoftDeletable)
 - **Infrastructure Layer** - DbContext, Repository<T>, Entity Configurations, DI Setup
+- **Application Layer** - MediatR CQRS, AutoMapper, FluentValidation, Pipeline Behaviors, DI Setup
+- **Shared Layer** - ApiResponse<T>, PaginatedList<T>
+
+### ✅ Completed Items (Phase 1: Application Layer)
+
+- [x] **Common Models & Exceptions**
+  - [x] Create domain exceptions (`EntityNotFoundException`, `ValidationException`)
+  - [x] Create API response wrapper models (`ApiResponse<T>`, `ApiResponse` in Shared)
+  - [x] Create pagination models (`PaginatedList<T>` in Shared)
+
+- [x] **MediatR Setup**
+  - [x] Setup MediatR pipeline behaviors (ValidationBehavior, LoggingBehavior)
+  - [x] Add AutoMapper configuration (`IMapFrom<T>`, `MappingProfile`)
+  - [x] Create `DependencyInjection.AddApplication()` registration
+
+- [x] **DTOs & Validators**
+  - [x] Create request/response DTOs (`ExampleSoftDeletableEntityDto`, Create/Update DTOs)
+  - [x] Create FluentValidation validators (Create/Update validators)
+  - [x] Create AutoMapper profiles via `IMapFrom<T>`
+
+- [x] **CQRS Commands & Queries**
+  - [x] GetAll query + handler
+  - [x] GetById query + handler
+  - [x] Create command + handler
+  - [x] Update command + handler
+  - [x] Delete command + handler
 
 ### 🔄 Critical Items to Build (By Priority)
-
-#### Phase 1: Application Layer (Blocking)
-- [ ] **Common Models & Exceptions**
-  - [ ] Create domain exceptions (e.g., `EntityNotFoundException`, `ValidationException`)
-  - [ ] Create API response wrapper models
-  - [ ] Create pagination models
-
-- [ ] **MediatR Setup**
-  - [ ] Create base command and query handler interfaces
-  - [ ] Setup MediatR pipeline behaviors (validation, logging)
-  - [ ] Add AutoMapper configuration (for DTO mapping)
-
-- [ ] **DTOs & Validators**
-  - [ ] Create request/response DTOs
-  - [ ] Create FluentValidation validators
-  - [ ] Create AutoMapper profiles
 
 #### Phase 2: WebApi Layer (Blocking)
 - [ ] **Program.cs Setup**
   - [ ] Configure dependency injection
-  - [ ] Register Infrastructure services
-  - [ ] Register Application services
+  - [ ] Register Infrastructure services (`AddInfrastructure`)
+  - [ ] Register Application services (`AddApplication`)
   - [ ] Setup MediatR
   - [ ] Configure Swagger/OpenAPI
   - [ ] Setup CORS for Blazor frontend
@@ -58,48 +69,72 @@ This document tracks critical items needed to build the BankRecon application fo
 - [ ] **HTTP Client Services**
   - [ ] Base HTTP client service
   - [ ] Entity-specific API clients
-  - [ ] Request/response interceptors
 
-- [ ] **Pages & Components**
-  - [ ] Layout components (MainLayout, Navigation)
-  - [ ] Dashboard page
+- [ ] **UI Components**
+  - [ ] Shared layout components
   - [ ] Entity list pages
-  - [ ] Entity detail/edit pages
-  - [ ] Entity create pages
+  - [ ] Entity form pages (Create/Edit)
+  - [ ] Delete confirmation dialogs
 
-- [ ] **State Management (Optional)**
-  - [ ] Setup state container (if needed)
-  - [ ] Component communication patterns
+### 📁 Project Structure Convention
 
-#### Phase 4: Optional Enhancements
-- [ ] Unit Tests (xUnit + Moq)
-- [ ] Integration Tests
-- [ ] Authentication & Authorization (Identity)
-- [ ] Logging (Serilog)
-- [ ] Performance Monitoring
+```
+src/BankRecon.Application/
+├── Common/
+│   ├── Behaviors/           # MediatR pipeline behaviors
+│   ├── Exceptions/          # Domain exceptions
+│   ├── Interfaces/          # Repository interfaces
+│   └── Mappings/            # AutoMapper profiles
+├── Features/
+│   └── {EntityName}/        # Feature-based organization
+│       ├── Commands/
+│       │   ├── Create/      # Command + Handler
+│       │   ├── Update/      # Command + Handler
+│       │   └── Delete/      # Command + Handler
+│       ├── Queries/
+│       │   ├── GetAll/      # Query + Handler
+│       │   └── GetById/     # Query + Handler
+│       ├── Dtos/            # Request/Response DTOs
+│       └── Validators/      # FluentValidation validators
+└── DependencyInjection.cs   # Service registration
+```
 
-### Architecture Notes
+### 🔧 Coding Standards
 
-- **Domain Layer**: Contains business rules, entities, and domain exceptions
-- **Application Layer**: Contains use cases (commands/queries), validators, DTOs, and application services
-- **Infrastructure Layer**: ✅ COMPLETE - DbContext, repositories, configurations, and DI setup
-- **WebApi Layer**: ASP.NET Core backend, controllers, middleware, configuration
-- **Blazor UI Layer**: WebAssembly frontend using MudBlazor components
-
-### Code Style Guidelines
-
-- Follow `.editorconfig` rules strictly (4 spaces, PascalCase for types, camelCase for locals)
+- Follow `.editorconfig` rules strictly
 - Use file-scoped namespaces
-- Enable nullable reference types
-- Use expression-bodied members where appropriate
-- Add XML documentation for public APIs
+- Use explicit types (avoid `var` except when type is apparent)
+- PascalCase for public members, camelCase for private fields
+- All entities inherit from `BaseEntity` or `SoftDeletableEntity`
+- All CQRS handlers return `ApiResponse<T>` or `ApiResponse`
+- All command inputs must have FluentValidation validators
+- Use `IMapFrom<T>` interface for AutoMapper DTO mappings
 
-### Development Workflow
+### 🚀 Multi-Project Launch
 
-1. Create domain entities (when design is finalized)
-2. Build Application layer use cases
-3. Implement WebApi controllers and endpoints
-4. Build Blazor UI pages and components
-5. Add cross-cutting concerns (logging, error handling)
-6. Write tests
-7. Performance optimization
+Both WebApi and Bsui projects can be launched simultaneously using `BankRecon.slnLaunch` (shared) or `BankRecon.slnLaunch.user` (personal):
+
+```json
+[
+  {
+    "Name": "BankRecon",
+    "Projects": [
+      {
+        "Path": "src\\BankRecon.WebApi\\BankRecon.WebApi.csproj",
+        "Action": "Start",
+        "DebugTarget": "BankRecon.WebApi"
+      },
+      {
+        "Path": "src\\BankRecon.Bsui\\BankRecon.Bsui.csproj",
+        "Action": "Start",
+        "DebugTarget": "BankRecon.Bsui"
+      }
+    ]
+  }
+]
+```
+
+| Endpoint | URL |
+|---|---|
+| WebApi | `https://localhost:57134` |
+| Blazor UI | `https://localhost:57123` |

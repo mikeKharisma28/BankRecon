@@ -15,7 +15,8 @@ BankRecon is a comprehensive solution for bank account reconciliation, enabling 
 ## 🏗️ Architecture
 
 The project follows **Clean Architecture** principles with clear separation of concerns:
-```mermaid
+
+```mermaid
 graph TD;
     A["BankRecon.Bsui\nBlazor WebAssembly - MudBlazor"] --> B["BankRecon.WebApi\nASP.NET Core REST API"];
     B --> C["BankRecon.Application\nMediatR - CQRS Pattern"];
@@ -39,67 +40,67 @@ graph TD;
 
 ## 🚀 Tech Stack
 
-| Technology | Purpose |
-|------------|---------|
-| **.NET 8** | Runtime framework |
-| **ASP.NET Core** | Web API framework |
-| **Blazor WebAssembly** | Frontend framework |
-| **Entity Framework Core 8** | ORM with SQL Server |
-| **MediatR** | CQRS pattern implementation |
-| **FluentValidation** | Input validation |
-| **AutoMapper** | Object mapping |
-| **MudBlazor** | Material Design components |
-| **Swagger/OpenAPI** | API documentation |
+| Layer | Technology |
+|---|---|
+| **Frontend** | Blazor WebAssembly, MudBlazor 7.x |
+| **API** | ASP.NET Core 8 Web API, Swagger/OpenAPI |
+| **Application** | MediatR 12.x (CQRS), AutoMapper 12.x, FluentValidation 10.x |
+| **Domain** | .NET 8 (no external dependencies) |
+| **Infrastructure** | Entity Framework Core 8, SQL Server |
+| **Shared** | API Response models, Pagination models |
 
 ## 📦 Project Structure
-```
+
+```
 src/
-├── BankRecon.Domain/
+├── BankRecon.Domain/                  # Domain layer (entities, interfaces)
 │   ├── Common/
-│   │   ├── BaseEntity.cs
-│   │   ├── AuditableEntity.cs
-│   │   └── Interfaces/
-│   │       ├── IHasKey.cs
-│   │       ├── ICreatable.cs
-│   │       ├── IUpdatable.cs
-│   │       └── ISoftDeletable.cs
-│   └── Entities/
+│   │   ├── BaseEntity.cs              # Base entity with Id, audit fields
+│   │   ├── SoftDeletableEntity.cs     # Soft delete support
+│   │   └── Interfaces/               # IHasKey, ICreatable, IUpdatable, ISoftDeletable
+│   └── Entities/                      # Domain entities
 │
-├── BankRecon.Application/
+├── BankRecon.Application/             # Application layer (CQRS, business logic)
 │   ├── Common/
-│   │   └── Interfaces/
-│   │       └── IRepository.cs
-│   ├── Features/          (Commands, Queries, Handlers)
-│   ├── DTOs/
-│   ├── Validators/
-│   └── MappingProfiles/
+│   │   ├── Behaviors/                 # MediatR pipeline behaviors
+│   │   │   ├── LoggingBehavior.cs     # Request/response logging
+│   │   │   └── ValidationBehavior.cs  # Automatic FluentValidation
+│   │   ├── Exceptions/               # Domain exceptions
+│   │   │   ├── EntityNotFoundException.cs
+│   │   │   └── ValidationException.cs
+│   │   ├── Interfaces/               # IRepository<T>
+│   │   └── Mappings/                 # AutoMapper profiles (IMapFrom<T>)
+│   ├── Features/                      # Feature-based CQRS organization
+│   │   └── {Entity}/
+│   │       ├── Commands/             # Create, Update, Delete
+│   │       ├── Queries/              # GetAll, GetById
+│   │       ├── Dtos/                 # Request/Response DTOs
+│   │       └── Validators/           # FluentValidation validators
+│   └── DependencyInjection.cs        # Application service registration
 │
-├── BankRecon.Infrastructure/ ✅
+├── BankRecon.Infrastructure/          # Infrastructure layer (data access)
 │   ├── Data/
-│   │   └── BankReconDbContext.cs
+│   │   └── BankReconDbContext.cs      # EF Core DbContext
+│   ├── Configurations/               # EF Core entity configurations
 │   ├── Repositories/
-│   │   └── Repository.cs
-│   ├── Configurations/
-│   │   ├── BaseEntityConfiguration.cs
-│   │   └── AuditableEntityConfiguration.cs
-│   └── DependencyInjection.cs
+│   │   └── Repository.cs             # Generic repository (soft delete aware)
+│   └── DependencyInjection.cs        # Infrastructure service registration
 │
-├── BankRecon.WebApi/
-│   ├── Controllers/
-│   ├── Middleware/
-│   ├── Program.cs
-│   └── appsettings.*.json
+├── BankRecon.Shared/                  # Shared models (used by API + Blazor)
+│   └── Common/
+│       ├── Models/
+│       │   └── PaginatedList.cs       # Pagination support
+│       └── Responses/
+│           └── ApiResponse.cs         # Standardized API response wrapper
 │
-├── BankRecon.Bsui/
-│   ├── Pages/
-│   ├── Components/
-│   ├── Services/
+├── BankRecon.WebApi/                  # Web API layer (controllers, middleware)
 │   └── Program.cs
 │
-└── BankRecon.Shared/
-    ├── DTOs/
-    ├── Models/
-    └── Validators/```
+└── BankRecon.Bsui/                    # Blazor WebAssembly UI
+    ├── Pages/
+    ├── Shared/
+    └── Program.cs
+```
 
 ## ✨ Key Features
 
@@ -119,62 +120,39 @@ src/
 public class BankAccount : BaseEntity { }
 
 // Option 2: Full audit trail with soft delete
-public class Transaction : AuditableEntity { }```
+public class Transaction : AuditableEntity { }
+```
 
 ## 🔧 Getting Started
 
 ### Prerequisites
 
-- **.NET 8 SDK** or later
-- **SQL Server** (local or remote)
-- **Visual Studio 2022** or **VS Code**
+- [.NET 8 SDK](https://dotnet.microsoft.com/download/dotnet/8.0)
+- [SQL Server](https://www.microsoft.com/sql-server) (LocalDB or full instance)
+- [Visual Studio 2022](https://visualstudio.microsoft.com/) (recommended)
 
 ### Installation
 
-1. **Clone the repository**
-    ```bash
-    git clone https://github.com/mikeKharisma28/BankRecon.git
-    cd BankRecon
-    ```
+1. **Clone the repository**
+   ```bash
+   git clone https://github.com/mikeKharisma28/BankRecon.git
+   cd BankRecon
+   ```
 
-2. **Configure database connection**
+2. **Configure the database connection**
+Update `src/BankRecon.WebApi/appsettings.json`:
+   ```json
+   {
+     "ConnectionStrings": {
+       "DefaultConnection": "Server=(localdb)\\mssqllocaldb;Database=BankRecon;Trusted_Connection=True;"
+     }
+   }
+   ```
 
-   Edit `src/BankRecon.WebApi/appsettings.Development.json`:
-
-    ```json
-    {
-      "ConnectionStrings": {
-        "DefaultConnection": "Server=.;Database=BankReconDb;Trusted_Connection=true;"
-      }
-    }
-    ```
-
-3. **Create database**
-
-    ```bash
-    cd src/BankRecon.WebApi
-    dotnet ef database update --project ../BankRecon.Infrastructure
-    ```
-
-4. **Run the application**
-
-   **Terminal 1 - WebApi:**
-
-    ```bash
-    cd src/BankRecon.WebApi
-    dotnet run
-    ```
-
-   **Terminal 2 - Blazor UI:**
-
-    ```bash
-    cd src/BankRecon.Bsui
-    dotnet run
-    ```
-
-5. **Access the application**
-   - API: `https://localhost:5001` (Swagger at `/swagger`)
-   - UI: `https://localhost:7001`
+3. **Run both projects**
+Use the multi-project launch profile (`BankRecon.slnLaunch`) or configure in Visual Studio:
+- **WebApi**: `https://localhost:57134`
+- **Blazor UI**: `https://localhost:57123`
 
 ## 📚 Development Workflow
 
@@ -182,26 +160,26 @@ public class Transaction : AuditableEntity { }```
 
 1. **Define the domain entity** (in `BankRecon.Domain`)
 
-    ```csharp
-    public class MyEntity : AuditableEntity
-    {
-        public string Name { get; set; } = string.Empty;
-    }
-    ```
+ ```csharp
+ public class MyEntity : AuditableEntity
+ {
+     public string Name { get; set; } = string.Empty;
+ }
+ ```
 
 2. **Create entity configuration** (in `BankRecon.Infrastructure`)
 
-    ```csharp
-    public class MyEntityConfiguration : AuditableEntityConfiguration<MyEntity>
-    {
-        public override void Configure(EntityTypeBuilder<MyEntity> builder)
-        {
-            base.Configure(builder);
-            builder.ToTable("MyEntities");
-            // Configure properties, indexes, relationships
-        }
-    }
-    ```
+ ```csharp
+ public class MyEntityConfiguration : AuditableEntityConfiguration<MyEntity>
+ {
+     public override void Configure(EntityTypeBuilder<MyEntity> builder)
+     {
+         base.Configure(builder);
+         builder.ToTable("MyEntities");
+         // Configure properties, indexes, relationships
+     }
+ }
+ ```
 
 3. **Create DTOs and validators** (in `BankRecon.Application`)
 4. **Create MediatR handlers** (Commands/Queries)
