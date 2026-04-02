@@ -33,7 +33,7 @@ graph TD;
 |-------|---------|----------------|
 | **UI** | `BankRecon.Bsui` | Blazor WebAssembly frontend with MudBlazor components |
 | **API** | `BankRecon.WebApi` | REST endpoints, middleware, configuration |
-| **Application** | `BankRecon.Application` | MediatR CQRS handlers, validators, DTOs, AutoMapper |
+| **Application** | `BankRecon.Application` | ✅ MediatR CQRS handlers, validators, DTOs, AutoMapper |
 | **Domain** | `BankRecon.Domain` | Core business entities, DDD concepts, no dependencies |
 | **Shared** | `BankRecon.Shared` | DTOs, validation rules, utilities |
 | **Infrastructure** | `BankRecon.Infrastructure` | ✅ EF Core, repositories, DB config, DI setup |
@@ -57,7 +57,7 @@ src/
 │   ├── Common/
 │   │   ├── BaseEntity.cs              # Base entity with Id, audit fields
 │   │   ├── SoftDeletableEntity.cs     # Soft delete support
-│   │   └── Interfaces/               # IHasKey, ICreatable, IUpdatable, ISoftDeletable
+│   │   └── Interfaces/                # IHasKey, ICreatable, IUpdatable, ISoftDeletable
 │   └── Entities/                      # Domain entities
 │
 ├── BankRecon.Application/             # Application layer (CQRS, business logic)
@@ -65,26 +65,26 @@ src/
 │   │   ├── Behaviors/                 # MediatR pipeline behaviors
 │   │   │   ├── LoggingBehavior.cs     # Request/response logging
 │   │   │   └── ValidationBehavior.cs  # Automatic FluentValidation
-│   │   ├── Exceptions/               # Domain exceptions
+│   │   ├── Exceptions/                # Domain exceptions
 │   │   │   ├── EntityNotFoundException.cs
 │   │   │   └── ValidationException.cs
-│   │   ├── Interfaces/               # IRepository<T>
-│   │   └── Mappings/                 # AutoMapper profiles (IMapFrom<T>)
+│   │   ├── Interfaces/                # IRepository<T>
+│   │   └── Mappings/                  # AutoMapper profiles (IMapFrom<T>)
 │   ├── Features/                      # Feature-based CQRS organization
 │   │   └── {Entity}/
-│   │       ├── Commands/             # Create, Update, Delete
-│   │       ├── Queries/              # GetAll, GetById
-│   │       ├── Dtos/                 # Request/Response DTOs
-│   │       └── Validators/           # FluentValidation validators
-│   └── DependencyInjection.cs        # Application service registration
+│   │       ├── Commands/              # Create, Update, Delete
+│   │       ├── Queries/               # GetAll, GetById
+│   │       ├── Dtos/                  # Request/Response DTOs
+│   │       └── Validators/            # FluentValidation validators
+│   └── DependencyInjection.cs         # Application service registration
 │
 ├── BankRecon.Infrastructure/          # Infrastructure layer (data access)
 │   ├── Data/
 │   │   └── BankReconDbContext.cs      # EF Core DbContext
-│   ├── Configurations/               # EF Core entity configurations
+│   ├── Configurations/                # EF Core entity configurations
 │   ├── Repositories/
-│   │   └── Repository.cs             # Generic repository (soft delete aware)
-│   └── DependencyInjection.cs        # Infrastructure service registration
+│   │   └── Repository.cs              # Generic repository (soft delete aware)
+│   └── DependencyInjection.cs         # Infrastructure service registration
 │
 ├── BankRecon.Shared/                  # Shared models (used by API + Blazor)
 │   └── Common/
