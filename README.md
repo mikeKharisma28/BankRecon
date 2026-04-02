@@ -1,5 +1,3 @@
-Here's the improved `README.md` file, incorporating the new content while maintaining the existing structure and information:
-
 # BankRecon
 
 A modern bank reconciliation application built with **Clean Architecture** and **Domain-Driven Design (DDD)** principles using .NET 8, Blazor WebAssembly, and Entity Framework Core.
@@ -16,7 +14,8 @@ BankRecon is a comprehensive solution for bank account reconciliation, enabling 
 ## 🏗️ Architecture
 
 The project follows **Clean Architecture** principles with clear separation of concerns:
-
+
+
 ┌─────────────────────────────────────────┐
 │     BankRecon.Bsui                      │
 │  (Blazor WebAssembly UI - MudBlazor)   │
@@ -37,7 +36,8 @@ The project follows **Clean Architecture** principles with clear separation of c
 ┌─▼──────┐ ┌─▼────────┐ ┌─▼────────────┐
 │ Domain │ │Shared   │ │Infrastructure│
 │ (DDD)  │ │(DTOs)   │ │(EF Core, DB) │
-└────────┘ └─────────┘ └──────────────┘
+└────────┘ └─────────┘ └──────────────┘
+
 
 ### Layers
 
@@ -88,7 +88,8 @@ The project follows **Clean Architecture** principles with clear separation of c
 - **Swagger/OpenAPI** - API documentation
 
 ## 📦 Project Structure
-
+
+
 src/
 ├── BankRecon.Domain/              # Core domain entities and interfaces
 │   ├── Common/
@@ -125,7 +126,8 @@ src/
 └── BankRecon.Shared/               # Shared models and utilities
     ├── DTOs/
     ├── Models/
-    └── Validators/
+    └── Validators/
+
 
 ## ✨ Key Features
 
@@ -136,12 +138,14 @@ src/
 - **Query Filters** - Automatic exclusion of soft-deleted entities
 - **EF Core Configurations** - Type-safe entity mapping and relationships
 
-### Entity Flexibility
+### Entity Flexibility
+
 // BaseEntity - Basic audit tracking (default)
 public class BankAccount : BaseEntity { }
 
 // AuditableEntity - Full audit trail with soft delete
-public class Transaction : AuditableEntity { }
+public class Transaction : AuditableEntity { }
+
 
 ## 🔧 Getting Started
 
@@ -152,43 +156,54 @@ public class Transaction : AuditableEntity { }
 
 ### Installation
 
-1. **Clone the repository**
+1. **Clone the repository**
+
    git clone https://github.com/mikeKharisma28/BankRecon.git
-   cd BankRecon
+   cd BankRecon
+
 
 2. **Setup database connection**
 - Edit `src/BankRecon.WebApi/appsettings.Development.json`
-- Update connection string for your SQL Server instance:
+- Update connection string for your SQL Server instance:
+
    {
      "ConnectionStrings": {
        "DefaultConnection": "Server=.;Database=BankReconDb;Trusted_Connection=true;"
      }
-   }
+   }
 
-3. **Create database and migrations**
+
+3. **Create database and migrations**
+
    cd src/BankRecon.WebApi
-   dotnet ef database update --project ../BankRecon.Infrastructure
+   dotnet ef database update --project ../BankRecon.Infrastructure
 
-4. **Build and run**
+
+4. **Build and run**
+
    # Run WebApi
    cd src/BankRecon.WebApi
    dotnet run
 
    # Run Blazor UI (in separate terminal)
    cd src/BankRecon.Bsui
-   dotnet run
+   dotnet run
+
 
 ## 📚 Development Workflow
 
 ### Creating a New Feature
 
-1. **Create domain entity** (if needed)
+1. **Create domain entity** (if needed)
+
    public class MyEntity : AuditableEntity
    {
        public string Name { get; set; } = string.Empty;
-   }
+   }
 
-2. **Create entity configuration**
+
+2. **Create entity configuration**
+
    public class MyEntityConfiguration : AuditableEntityConfiguration<MyEntity>
    {
        public override void Configure(EntityTypeBuilder<MyEntity> builder)
@@ -197,7 +212,8 @@ public class Transaction : AuditableEntity { }
            builder.ToTable("MyEntities");
            // Configure properties
        }
-   }
+   }
+
 
 3. **Create DTOs and validators**
 4. **Create MediatR handlers** (Commands/Queries)
@@ -257,6 +273,7 @@ For issues, questions, or suggestions, please [open an issue](https://github.com
 ---
 
 **Last Updated**: April 2026 
-**Status**: 🚧 Under Development - Infrastructure Layer Complete
+**Status**: 🚧 Under Development - Infrastructure Layer Complete
+
 
 This version maintains the original structure while enhancing clarity and coherence, ensuring that all relevant information is presented effectively.
