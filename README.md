@@ -35,7 +35,7 @@ graph TD;
 | **API** | `BankRecon.WebApi` | REST endpoints, middleware, configuration |
 | **Application** | `BankRecon.Application` | ✅ MediatR CQRS handlers, validators, DTOs, AutoMapper |
 | **Domain** | `BankRecon.Domain` | Core business entities, DDD concepts, no dependencies |
-| **Shared** | `BankRecon.Shared` | DTOs, validation rules, utilities |
+| **Shared** | `BankRecon.Shared` | ✅ DTOs, validation rules, utilities |
 | **Infrastructure** | `BankRecon.Infrastructure` | ✅ EF Core, repositories, DB config, DI setup |
 
 ## 🚀 Tech Stack
