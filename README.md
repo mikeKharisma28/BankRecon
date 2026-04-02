@@ -15,15 +15,16 @@ BankRecon is a comprehensive solution for bank account reconciliation, enabling 
 ## 🏗️ Architecture
 
 The project follows **Clean Architecture** principles with clear separation of concerns:
-
-graph TD
-    A["BankRecon.Bsui\nBlazor WebAssembly - MudBlazor"] --> B["BankRecon.WebApi\nASP.NET Core REST API"]
-    B --> C["BankRecon.Application\nMediatR - CQRS Pattern"]
-    C --> D["BankRecon.Domain\nDDD - Core Entities"]
-    C --> E["BankRecon.Shared\nDTOs and Validators"]
-    C --> F["BankRecon.Infrastructure\nEF Core and SQL Server"]
-    F --> D
-    E --> D
+```mermaid
+graph TD;
+    A["BankRecon.Bsui\nBlazor WebAssembly - MudBlazor"] --> B["BankRecon.WebApi\nASP.NET Core REST API"];
+    B --> C["BankRecon.Application\nMediatR - CQRS Pattern"];
+    C --> D["BankRecon.Domain\nDDD - Core Entities"];
+    C --> E["BankRecon.Shared\nDTOs and Validators"];
+    C --> F["BankRecon.Infrastructure\nEF Core and SQL Server"];
+    F --> D;
+    E --> D;
+```
 
 ### Layers Description
 
