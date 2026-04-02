@@ -1,5 +1,3 @@
-Here's the improved `README.md` file, incorporating the new content while maintaining the existing structure and information:
-
 # BankRecon
 
 A modern bank reconciliation application built with **Clean Architecture** and **Domain-Driven Design (DDD)** principles using .NET 8, Blazor WebAssembly, and Entity Framework Core.
@@ -17,8 +15,7 @@ BankRecon is a comprehensive solution for bank account reconciliation, enabling 
 ## 🏗️ Architecture
 
 The project follows **Clean Architecture** principles with clear separation of concerns:
-
-
+
 graph TD
     A["BankRecon.Bsui\nBlazor WebAssembly - MudBlazor"] --> B["BankRecon.WebApi\nASP.NET Core REST API"]
     B --> C["BankRecon.Application\nMediatR - CQRS Pattern"]
@@ -54,8 +51,7 @@ graph TD
 | **Swagger/OpenAPI** | API documentation |
 
 ## 📦 Project Structure
-
-```
+```
 src/
 ├── BankRecon.Domain/
 │   ├── Common/
@@ -102,8 +98,7 @@ src/
 └── BankRecon.Shared/
     ├── DTOs/
     ├── Models/
-    └── Validators/
-```
+    └── Validators/```
 
 ## ✨ Key Features
 
@@ -123,8 +118,7 @@ src/
 public class BankAccount : BaseEntity { }
 
 // Option 2: Full audit trail with soft delete
-public class Transaction : AuditableEntity { }
-```
+public class Transaction : AuditableEntity { }```
 
 ## 🔧 Getting Started
 
@@ -136,8 +130,7 @@ public class Transaction : AuditableEntity { }
 
 ### Installation
 
-1. **Clone the repository**
-
+1. **Clone the repository**
     ```bash
     git clone https://github.com/mikeKharisma28/BankRecon.git
     cd BankRecon
