@@ -13,6 +13,7 @@
     <PackageReference Include="Swashbuckle.AspNetCore" Version="6.5.0" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\BankRecon.Application\BankRecon.Application.csproj" />
     <ProjectReference Include="..\BankRecon.Infrastructure\BankRecon.Infrastructure.csproj" />
     <ProjectReference Include="..\BankRecon.Shared\BankRecon.Shared.csproj" />
   </ItemGroup>

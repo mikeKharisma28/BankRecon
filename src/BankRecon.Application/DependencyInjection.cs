@@ -13,7 +13,7 @@ public static class DependencyInjection
         Assembly assembly = typeof(DependencyInjection).Assembly;
 
         // Register AutoMapper
-        services.AddAutoMapper(assembly);
+        services.AddAutoMapper(cfg => cfg.AddMaps(assembly));
 
         // Register MediatR
         services.AddMediatR(cfg => cfg.RegisterServicesFromAssembly(assembly));

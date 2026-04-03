@@ -1,17 +1,20 @@
 using System.Reflection;
 using AutoMapper;
+using BankRecon.Shared.Common.Mappings;
 
 namespace BankRecon.Application.Common.Mappings;
 
 /// <summary>
-/// AutoMapper profile that scans the Application assembly
+/// AutoMapper profile that scans the Application and Shared assemblies
 /// for all types implementing <see cref="IMapFrom{T}"/> and invokes their mappings.
 /// </summary>
 public class MappingProfile : Profile
 {
     public MappingProfile()
     {
-        ApplyMappingsFromAssembly(Assembly.GetExecutingAssembly());
+        // Scan both assemblies for IMapFrom implementations
+        ApplyMappingsFromAssembly(typeof(DependencyInjection).Assembly);   // Application
+        ApplyMappingsFromAssembly(typeof(IMapFrom<>).Assembly);            // Shared
     }
 
     private void ApplyMappingsFromAssembly(Assembly assembly)

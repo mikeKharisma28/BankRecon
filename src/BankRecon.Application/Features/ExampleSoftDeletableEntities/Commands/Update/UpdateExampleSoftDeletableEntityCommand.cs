@@ -1,4 +1,4 @@
-using BankRecon.Application.Features.ExampleSoftDeletableEntities.Dtos;
+using BankRecon.Shared.Features.ExampleSoftDeletableEntities.Dtos;
 using BankRecon.Shared.Common.Responses;
 using MediatR;
 

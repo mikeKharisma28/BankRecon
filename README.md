@@ -1,16 +1,22 @@
 # BankRecon
 
-A modern bank reconciliation application built with **Clean Architecture** and **Domain-Driven Design (DDD)** principles using .NET 8, Blazor WebAssembly, and Entity Framework Core.
+A modern banking reconciliation application built with **Clean Architecture**, **Domain-Driven Design (DDD)**, and **CQRS** patterns using .NET 8, ASP.NET Core WebAPI, Blazor WebAssembly, and SQL Server.
 
-## 📋 Overview
+## 🎯 Project Overview
 
-BankRecon is a comprehensive solution for bank account reconciliation, enabling users to:
+BankRecon is designed to streamline bank transaction reconciliation with a focus on clean code architecture, maintainability, and scalability. The application separates concerns across multiple layers ensuring testability and flexibility.
 
-- Manage multiple bank accounts
-- Track financial transactions
-- Reconcile bank statements with ledger records
-- Maintain complete audit trails with soft delete capabilities
-- Access data through a responsive Blazor WebAssembly UI
+### Key Features
+
+- ✅ **Clean Architecture** — Well-defined layers (Domain, Application, Infrastructure, Shared, WebAPI)
+- ✅ **CQRS Pattern** — Command/Query separation with MediatR
+- ✅ **Domain-Driven Design** — Rich domain entities with business logic
+- ✅ **Soft Delete** — Support for logical deletion with restore capability
+- ✅ **Audit Trail** — Automatic tracking of creation and update timestamps
+- ✅ **Validation** — FluentValidation with MediatR pipeline integration
+- ✅ **Exception Handling** — Centralized middleware for error responses
+- ✅ **Blazor WebAssembly** — Real-time UI with offline capabilities
+- ✅ **API Documentation** — Swagger/OpenAPI integration
 
 ## 🏗️ Architecture
 
@@ -59,6 +65,7 @@ src/
 │   │   ├── SoftDeletableEntity.cs     # Soft delete support
 │   │   └── Interfaces/                # IHasKey, ICreatable, IUpdatable, ISoftDeletable
 │   └── Entities/                      # Domain entities
+│       └── ExampleSoftDeletableEntity.cs
 │
 ├── BankRecon.Application/             # Application layer (CQRS, business logic)
 │   ├── Common/
@@ -71,30 +78,39 @@ src/
 │   │   ├── Interfaces/                # IRepository<T>
 │   │   └── Mappings/                  # AutoMapper profiles (IMapFrom<T>)
 │   ├── Features/                      # Feature-based CQRS organization
-│   │   └── {Entity}/
+│   │   └── ExampleSoftDeletableEntities/
 │   │       ├── Commands/              # Create, Update, Delete
 │   │       ├── Queries/               # GetAll, GetById
-│   │       ├── Dtos/                  # Request/Response DTOs
 │   │       └── Validators/            # FluentValidation validators
 │   └── DependencyInjection.cs         # Application service registration
 │
 ├── BankRecon.Infrastructure/          # Infrastructure layer (data access)
 │   ├── Data/
 │   │   └── BankReconDbContext.cs      # EF Core DbContext
-│   ├── Configurations/                # EF Core entity configurations
 │   ├── Repositories/
 │   │   └── Repository.cs              # Generic repository (soft delete aware)
+│   ├── EntityConfigurations/
 │   └── DependencyInjection.cs         # Infrastructure service registration
 │
 ├── BankRecon.Shared/                  # Shared models (used by API + Blazor)
-│   └── Common/
-│       ├── Models/
-│       │   └── PaginatedList.cs       # Pagination support
-│       └── Responses/
-│           └── ApiResponse.cs         # Standardized API response wrapper
+│   ├── Common/
+│   │   ├── Responses/
+│   │   │   └── ApiResponse.cs         # Standardized API response wrapper
+│   │   ├── Models/
+│   │   │   └── PaginatedList.cs       # Pagination support
+│   │   └── Mappings/
+│   │       └── IMapFrom.cs
+│   └── Features/
+│       └── ExampleSoftDeletableEntities/
+│           └── Dtos/
 │
 ├── BankRecon.WebApi/                  # Web API layer (controllers, middleware)
-│   └── Program.cs
+│   ├── Controllers/
+│   ├── Middleware/
+│   ├── Properties/
+│   ├── Program.cs
+│   ├── appsettings.json
+│   └── appsettings.Development.json
 │
 └── BankRecon.Bsui/                    # Blazor WebAssembly UI
     ├── Pages/
@@ -127,11 +143,11 @@ public class Transaction : AuditableEntity { }
 
 ### Prerequisites
 
-- [.NET 8 SDK](https://dotnet.microsoft.com/download/dotnet/8.0)
-- [SQL Server](https://www.microsoft.com/sql-server) (LocalDB or full instance)
-- [Visual Studio 2022](https://visualstudio.microsoft.com/) (recommended)
+- **.NET 8 SDK** — [Download](https://dotnet.microsoft.com/download)
+- **SQL Server** or **LocalDB** — Included with Visual Studio
+- **Visual Studio 2022** or **VS Code** with C# extension
 
-### Installation
+### Setup Instructions
 
 1. **Clone the repository**
    ```bash
@@ -139,20 +155,24 @@ public class Transaction : AuditableEntity { }
    cd BankRecon
    ```
 
-2. **Configure the database connection**
-Update `src/BankRecon.WebApi/appsettings.json`:
-   ```json
-   {
-     "ConnectionStrings": {
-       "DefaultConnection": "Server=(localdb)\\mssqllocaldb;Database=BankRecon;Trusted_Connection=True;"
-     }
-   }
+2. **Restore NuGet packages**
+   ```bash
+   dotnet restore
    ```
 
-3. **Run both projects**
-Use the multi-project launch profile (`BankRecon.slnLaunch`) or configure in Visual Studio:
-- **WebApi**: `https://localhost:57134`
-- **Blazor UI**: `https://localhost:57123`
+3. **Update the database**
+   ```bash
+   dotnet ef database update --project src/BankRecon.Infrastructure --startup-project src/BankRecon.WebApi
+   ```
+
+4. **Run the WebAPI**
+   ```bash
+   dotnet run --project src/BankRecon.WebApi
+   ```
+
+5. **Access Swagger UI**
+- Navigate to `https://localhost:5001/swagger` (or the port shown in console)
+- Explore and test all API endpoints
 
 ## 📚 Development Workflow
 
@@ -228,13 +248,62 @@ This project enforces strict code standards via `.editorconfig`:
 - [Blazor Documentation](https://docs.microsoft.com/en-us/aspnet/core/blazor/)
 - [MudBlazor Components](https://mudblazor.com/)
 
-## 📝 License
+## 🧪 Testing
 
-This project is licensed under the **MIT License** - see the [LICENSE](LICENSE) file for details.
+### Running Tests
 
-## 👨‍💻 Author
+# Run all tests
+dotnet test
 
-**Michael Laksa Kharisma** - [@mikeKharisma28](https://github.com/mikeKharisma28)
+# Run tests with coverage
+dotnet test /p:CollectCoverage=true
+
+## 📖 API Documentation
+
+### Example Endpoints
+
+#### Get All Entities
+GET /api/examplesoftdeletableentities
+Content-Type: application/json
+
+Response:
+{
+  "isSuccess": true,
+  "message": "Success",
+  "result": [
+    {
+      "id": "guid",
+      "description": "Example description",
+      "amount": 100.00,
+      "createdAt": "2024-04-04T10:00:00Z",
+      "updatedAt": null
+    }
+  ],
+  "errors": null
+}
+
+#### Create Entity
+POST /api/examplesoftdeletableentities
+Content-Type: application/json
+
+Request:
+{
+  "description": "New transaction",
+  "amount": 250.50
+}
+
+Response:
+{
+  "isSuccess": true,
+  "message": "Entity created successfully.",
+  "result": {
+    "id": "new-guid",
+    "description": "New transaction",
+    "amount": 250.50,
+    "createdAt": "2024-04-04T10:15:00Z",
+    "updatedAt": null
+  }
+}
 
 ## 🤝 Contributing
 
@@ -244,13 +313,17 @@ Contributions are welcome! Please see [CONTRIBUTING.md](CONTRIBUTING.md) for:
 - Code style requirements
 - Feature request process
 
+## 📄 License
+
+This project is licensed under the MIT License — see the LICENSE file for details.
+
+## 👤 Author
+
+**Michael Laksa Kharisma** — [@mikeKharisma28](https://github.com/mikeKharisma28)
+
 ## 📞 Support
 
-For issues, questions, or suggestions:
-
-- 📌 [Open an Issue](https://github.com/mikeKharisma28/BankRecon/issues)
-- 💬 Start a Discussion
-- 📧 Contact the maintainers
+For issues, questions, or suggestions, please open an [issue](https://github.com/mikeKharisma28/BankRecon/issues) on GitHub.
 
 ---
 

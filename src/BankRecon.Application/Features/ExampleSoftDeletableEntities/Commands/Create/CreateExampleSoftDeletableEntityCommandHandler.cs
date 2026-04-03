@@ -1,6 +1,6 @@
 using AutoMapper;
 using BankRecon.Application.Common.Interfaces;
-using BankRecon.Application.Features.ExampleSoftDeletableEntities.Dtos;
+using BankRecon.Shared.Features.ExampleSoftDeletableEntities.Dtos;
 using BankRecon.Domain.Entities;
 using BankRecon.Shared.Common.Responses;
 using MediatR;

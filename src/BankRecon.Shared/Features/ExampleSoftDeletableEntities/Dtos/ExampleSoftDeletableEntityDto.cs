@@ -1,8 +1,8 @@
 using AutoMapper;
-using BankRecon.Application.Common.Mappings;
 using BankRecon.Domain.Entities;
+using BankRecon.Shared.Common.Mappings;
 
-namespace BankRecon.Application.Features.ExampleSoftDeletableEntities.Dtos;
+namespace BankRecon.Shared.Features.ExampleSoftDeletableEntities.Dtos;
 
 public class ExampleSoftDeletableEntityDto : IMapFrom<ExampleSoftDeletableEntity>
 {
