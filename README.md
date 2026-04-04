@@ -37,10 +37,10 @@ graph TD;
 
 | Layer | Project | Responsibility |
 |-------|---------|----------------|
-| **UI** | `BankRecon.Bsui` | Blazor WebAssembly frontend with MudBlazor components |
-| **API** | `BankRecon.WebApi` | REST endpoints, middleware, configuration |
+| **UI** | `BankRecon.Bsui` | 🔄 Blazor WebAssembly frontend with MudBlazor components |
+| **API** | `BankRecon.WebApi` | ✅ REST endpoints, middleware, configuration |
 | **Application** | `BankRecon.Application` | ✅ MediatR CQRS handlers, validators, DTOs, AutoMapper |
-| **Domain** | `BankRecon.Domain` | Core business entities, DDD concepts, no dependencies |
+| **Domain** | `BankRecon.Domain` | ✅ Core business entities, DDD concepts, no dependencies |
 | **Shared** | `BankRecon.Shared` | ✅ DTOs, validation rules, utilities |
 | **Infrastructure** | `BankRecon.Infrastructure` | ✅ EF Core, repositories, DB config, DI setup |
 
@@ -210,14 +210,15 @@ public class Transaction : AuditableEntity { }
 
 ### ✅ Completed
 
-- ✅ Infrastructure Layer (DbContext, Repository, Configurations, DI)
-- ✅ Domain Layer (BaseEntity, AuditableEntity, interfaces)
+- ✅ Domain Layer (BaseEntity, SoftDeletableEntity, interfaces)
+- ✅ Shared Layer (ApiResponse, PaginatedList, IMapFrom, DTOs)
+- ✅ Application Layer (MediatR CQRS, FluentValidation, AutoMapper, pipeline behaviors)
+- ✅ Infrastructure Layer (DbContext, generic repository, EF configs, soft delete filters)
+- ✅ WebApi Layer (controllers, ExceptionHandlingMiddleware, Swagger, CORS)
 
 ### 🔄 In Progress
 
-- 🔲 Application Layer (MediatR setup, handlers, DTOs, validators)
-- 🔲 WebApi Layer (Controllers, middleware, endpoints)
-- 🔲 Blazor UI Layer (Pages, components, services)
+- 🔄 Blazor UI Layer — `BankRecon.Bsui` (project scaffolded, MudBlazor integrated, feature pages pending)
 
 ### 📋 Planned
 
@@ -227,6 +228,10 @@ public class Transaction : AuditableEntity { }
 - 🔲 Performance optimization
 
 For detailed implementation checklist, see [CONTRIBUTING.md](CONTRIBUTING.md).
+
+---
+
+**Status:** 🚧 Under Development | **Current Phase:** WebApi Complete — Blazor UI In Progress (Phase 3/4) | **Last Updated:** April 2026
 
 ## 🔐 Code Standards
 
@@ -267,6 +272,7 @@ GET /api/examplesoftdeletableentities
 Content-Type: application/json
 
 Response:
+```json
 {
   "isSuccess": true,
   "message": "Success",
@@ -281,18 +287,22 @@ Response:
   ],
   "errors": null
 }
+```
 
 #### Create Entity
 POST /api/examplesoftdeletableentities
 Content-Type: application/json
 
 Request:
+```json
 {
   "description": "New transaction",
   "amount": 250.50
 }
+```
 
 Response:
+```json
 {
   "isSuccess": true,
   "message": "Entity created successfully.",
@@ -304,6 +314,7 @@ Response:
     "updatedAt": null
   }
 }
+```
 
 ## 🤝 Contributing
 
@@ -327,4 +338,4 @@ For issues, questions, or suggestions, please open an [issue](https://github.com
 
 ---
 
-**Status:** 🚧 Under Development | **Current Phase:** Infrastructure Complete (Phase 1/4) | **Last Updated:** April 2026
+**Status:** 🚧 Under Development | **Current Phase:** WebApi Complete — Blazor UI In Progress (Phase 3/4) | **Last Updated:** April 2026
