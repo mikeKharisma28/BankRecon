@@ -14,6 +14,7 @@
     <PackageReference Include="MudBlazor" Version="7.12.0" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\BankRecon.Bsui.Client\BankRecon.Bsui.Client.csproj" />
     <ProjectReference Include="..\BankRecon.Shared\BankRecon.Shared.csproj" />
   </ItemGroup>
   <ItemGroup>

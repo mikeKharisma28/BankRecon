@@ -24,6 +24,9 @@ public static class DependencyInjection
         // Register generic repository
         services.AddScoped(typeof(IRepository<>), typeof(Repository<>));
 
+        // Register audit log repository
+        services.AddScoped<IAuditLogRepository, AuditLogRepository>();
+
         return services;
     }
 }

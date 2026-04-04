@@ -12,7 +12,8 @@ BankRecon is designed to streamline bank transaction reconciliation with a focus
 - ✅ **CQRS Pattern** — Command/Query separation with MediatR
 - ✅ **Domain-Driven Design** — Rich domain entities with business logic
 - ✅ **Soft Delete** — Support for logical deletion with restore capability
-- ✅ **Audit Trail** — Automatic tracking of creation and update timestamps
+- ✅ **Audit Trail** — Automatic tracking of all create, update, delete operations with old/new values
+- ✅ **Audit Log Entity** — `AuditLog` table stores complete change history with affected columns
 - ✅ **Validation** — FluentValidation with MediatR pipeline integration
 - ✅ **Exception Handling** — Centralized middleware for error responses
 - ✅ **Blazor WebAssembly** — Real-time UI with offline capabilities
@@ -24,35 +25,38 @@ The project follows **Clean Architecture** principles with clear separation of c
 
 ```mermaid
 graph TD;
-    A["BankRecon.Bsui\nBlazor WebAssembly - MudBlazor"] --> B["BankRecon.WebApi\nASP.NET Core REST API"];
-    B --> C["BankRecon.Application\nMediatR - CQRS Pattern"];
-    C --> D["BankRecon.Domain\nDDD - Core Entities"];
-    C --> E["BankRecon.Shared\nDTOs and Validators"];
-    C --> F["BankRecon.Infrastructure\nEF Core and SQL Server"];
-    F --> D;
-    E --> D;
+    A["BankRecon.Bsui\nBlazor WebAssembly - MudBlazor"] --> B["BankRecon.Bsui.Client\nTyped HTTP Client Services"];
+    B --> C["BankRecon.WebApi\nASP.NET Core REST API"];
+    C --> D["BankRecon.Application\nMediatR - CQRS Pattern"];
+    D --> E["BankRecon.Domain\nDDD - Core Entities"];
+    D --> F["BankRecon.Shared\nDTOs and Validators"];
+    D --> G["BankRecon.Infrastructure\nEF Core + Audit Logs + SQL Server"];
+    G --> E;
+    F --> E;
 ```
 
 ### Layers Description
 
 | Layer | Project | Responsibility |
 |-------|---------|----------------|
-| **UI** | `BankRecon.Bsui` | 🔄 Blazor WebAssembly frontend with MudBlazor components |
+| **UI** | `BankRecon.Bsui` | ✅ Blazor WebAssembly frontend with MudBlazor components |
+| **Client** | `BankRecon.Bsui.Client` | ✅ Typed HTTP client services, API communication layer |
 | **API** | `BankRecon.WebApi` | ✅ REST endpoints, middleware, configuration |
 | **Application** | `BankRecon.Application` | ✅ MediatR CQRS handlers, validators, DTOs, AutoMapper |
 | **Domain** | `BankRecon.Domain` | ✅ Core business entities, DDD concepts, no dependencies |
 | **Shared** | `BankRecon.Shared` | ✅ DTOs, validation rules, utilities |
-| **Infrastructure** | `BankRecon.Infrastructure` | ✅ EF Core, repositories, DB config, DI setup |
+| **Infrastructure** | `BankRecon.Infrastructure` | ✅ EF Core, repositories, audit logs, DB config, DI setup |
 
 ## 🚀 Tech Stack
 
 | Layer | Technology |
 |---|---|
 | **Frontend** | Blazor WebAssembly, MudBlazor 7.x |
+| **Client** | Typed HttpClient, Microsoft.Extensions.Http |
 | **API** | ASP.NET Core 8 Web API, Swagger/OpenAPI |
 | **Application** | MediatR 12.x (CQRS), AutoMapper 12.x, FluentValidation 10.x |
 | **Domain** | .NET 8 (no external dependencies) |
-| **Infrastructure** | Entity Framework Core 8, SQL Server |
+| **Infrastructure** | Entity Framework Core 8, SQL Server, Audit Log Tracking |
 | **Shared** | API Response models, Pagination models |
 
 ## 📦 Project Structure
@@ -64,8 +68,8 @@ src/
 │   │   ├── BaseEntity.cs              # Base entity with Id, audit fields
 │   │   ├── SoftDeletableEntity.cs     # Soft delete support
 │   │   └── Interfaces/                # IHasKey, ICreatable, IUpdatable, ISoftDeletable
-│   └── Entities/                      # Domain entities
-│       └── ExampleSoftDeletableEntity.cs
+│   ├── Entities/
+│   │   └── AuditLog.cs                # Audit log entity
 │
 ├── BankRecon.Application/             # Application layer (CQRS, business logic)
 │   ├── Common/
@@ -86,10 +90,13 @@ src/
 │
 ├── BankRecon.Infrastructure/          # Infrastructure layer (data access)
 │   ├── Data/
-│   │   └── BankReconDbContext.cs      # EF Core DbContext
+│   │   └── BankReconDbContext.cs      # EF Core DbContext with audit tracking
 │   ├── Repositories/
 │   │   └── Repository.cs              # Generic repository (soft delete aware)
-│   ├── EntityConfigurations/
+│   ├── Configurations/
+│   │   ├── BaseEntityConfiguration.cs
+│   │   ├── SoftDeletableEntityConfiguration.cs
+│   │   └── AuditLogConfiguration.cs
 │   └── DependencyInjection.cs         # Infrastructure service registration
 │
 ├── BankRecon.Shared/                  # Shared models (used by API + Blazor)
@@ -112,9 +119,25 @@ src/
 │   ├── appsettings.json
 │   └── appsettings.Development.json
 │
+├── BankRecon.Bsui.Client/             # Blazor client layer (HTTP services)
+│   ├── Common/
+│   │   ├── Interfaces/
+│   │   │   └── IApiClient.cs          # Base HTTP client contract
+│   │   └── Services/
+│   │       └── ApiClient.cs           # Base HTTP client implementation
+│   ├── Features/
+│   │   └── AuditLogs/
+│   │       ├── IAuditLogService.cs    # Feature-specific interface
+│   │       └── AuditLogService.cs     # Feature-specific implementation
+│   └── DependencyInjection.cs         # Bsui.Client service registration
+│
 └── BankRecon.Bsui/                    # Blazor WebAssembly UI
     ├── Pages/
     ├── Shared/
+    ├── Features/
+    ├── App.razor
+    ├── Routes.razor
+    ├── _Import.razor
     └── Program.cs
 ```
 
@@ -124,10 +147,49 @@ src/
 
 - **Generic Repository Pattern** - Reusable data access with soft delete support
 - **Soft Delete Capability** - Mark entities as deleted without removing data
-- **Audit Trail** - Automatic tracking of CreatedAt, CreatedBy, UpdatedAt, UpdatedBy
+- **Comprehensive Audit Trail** - Automatic tracking of all CRUD operations
 - **Query Filters** - Soft-deleted entities automatically excluded from queries
 - **Type-Safe Configuration** - EF Core configurations with compile-time safety
-- **Flexible Entity Model** - Choose between BaseEntity or AuditableEntity
+- **Flexible Entity Model** - Choose between BaseEntity or SoftDeletableEntity
+- **Audit Log Entity** - `AuditLog` table for complete change history
+
+### API Client Layer ✅
+
+- **Base API Client** - Reusable `IApiClient` abstraction for all HTTP operations
+- **Typed Services** - Feature-specific services (e.g., `IAuditLogService`)
+- **Automatic Deserialization** - Built-in `ApiResponse<T>` handling
+- **Typed HttpClient** - Uses `IHttpClientFactory` for efficient resource management
+- **Dependency Injection** - Clean DI integration via `AddBsuiClient()` extension
+
+### Audit & Soft Delete System ✅
+
+#### Soft Delete
+- Data is never permanently removed; instead marked as deleted
+- Automatic query filtering excludes deleted records
+- Full restore capability available
+
+#### Audit Logging
+Every operation is automatically logged with:
+- **Action Type** — Create, Update, or Delete
+- **Old Values** — Previous state (JSON serialized)
+- **New Values** — Current state (JSON serialized)
+- **Affected Columns** — Which fields were modified (for updates)
+- **Timestamp** — When the action occurred
+- **PerformedBy** — Who performed the action (optional, requires user identity configuration)
+
+**Example Audit Entry:**
+```json
+{
+  "EntityName": "ExampleSoftDeletableEntity",
+  "EntityId": "550e8400-e29b-41d4-a716-446655440000",
+  "Action": "Update",
+  "OldValues": { "Description": "Test", "Amount": 100.00 },
+  "NewValues": { "Description": "Updated", "Amount": 150.00 },
+  "AffectedColumns": "Description, Amount",
+  "Timestamp": "2026-04-04T10:15:00Z",
+  "PerformedBy": "john.doe@example.com"
+}
+```
 
 ### Entity Options
 
@@ -136,7 +198,7 @@ src/
 public class BankAccount : BaseEntity { }
 
 // Option 2: Full audit trail with soft delete
-public class Transaction : AuditableEntity { }
+public class Transaction : SoftDeletableEntity { }
 ```
 
 ## 🔧 Getting Started
@@ -181,7 +243,7 @@ public class Transaction : AuditableEntity { }
 1. **Define the domain entity** (in `BankRecon.Domain`)
 
  ```csharp
- public class MyEntity : AuditableEntity
+ public class MyEntity : SoftDeletableEntity
  {
      public string Name { get; set; } = string.Empty;
  }
@@ -190,7 +252,7 @@ public class Transaction : AuditableEntity { }
 2. **Create entity configuration** (in `BankRecon.Infrastructure`)
 
  ```csharp
- public class MyEntityConfiguration : AuditableEntityConfiguration<MyEntity>
+ public class MyEntityConfiguration : SoftDeletableEntityConfiguration<MyEntity>
  {
      public override void Configure(EntityTypeBuilder<MyEntity> builder)
      {
@@ -204,34 +266,76 @@ public class Transaction : AuditableEntity { }
 3. **Create DTOs and validators** (in `BankRecon.Application`)
 4. **Create MediatR handlers** (Commands/Queries)
 5. **Create API controller** (in `BankRecon.WebApi`)
-6. **Create Blazor pages** (in `BankRecon.Bsui`)
+6. **Create client service** (in `BankRecon.Bsui.Client`)
+7. **Create Blazor pages** (in `BankRecon.Bsui`)
+
+### How Audit Logging Works (Automatic)
+
+✅ **No manual coding required!** The system automatically:
+
+1. Intercepts all database changes via `DbContext.SaveChangesAsync()` override
+2. Captures old and new values for each modified entity
+3. Serializes changes to JSON format
+4. Records in the `AuditLog` table with timestamp and user info
+
+**All you do is use the repository normally:**
+// Create — Automatically logged
+await repository.AddAsync(entity);
+
+// Update — Automatically logged (old/new values captured)
+await repository.UpdateAsync(entity);
+
+// Delete — Automatically logged as soft delete
+await repository.DeleteAsync(id);
+
+// Restore — Automatically logged
+await repository.RestoreAsync(id);
 
 ## 🎯 Implementation Status
 
-### ✅ Completed
+### ✅ Phase 1: Core Architecture & Application Layer (COMPLETED)
 
 - ✅ Domain Layer (BaseEntity, SoftDeletableEntity, interfaces)
-- ✅ Shared Layer (ApiResponse, PaginatedList, IMapFrom, DTOs)
 - ✅ Application Layer (MediatR CQRS, FluentValidation, AutoMapper, pipeline behaviors)
 - ✅ Infrastructure Layer (DbContext, generic repository, EF configs, soft delete filters)
+- ✅ Infrastructure Layer (Audit Log System with automatic change tracking)
+- ✅ Shared Layer (ApiResponse, PaginatedList, IMapFrom, DTOs)
+
+### ✅ Phase 2: WebApi Layer (COMPLETED)
+
 - ✅ WebApi Layer (controllers, ExceptionHandlingMiddleware, Swagger, CORS)
+- ✅ AuditLog endpoints and queries
+- ✅ Configuration and middleware setup
 
-### 🔄 In Progress
+### ✅ Phase 3: Blazor WebAssembly Client (COMPLETED)
 
-- 🔄 Blazor UI Layer — `BankRecon.Bsui` (project scaffolded, MudBlazor integrated, feature pages pending)
+- ✅ Bsui.Client Layer (typed HTTP client services, API communication)
+- ✅ Base API client (IApiClient, ApiClient)
+- ✅ Feature-specific services (IAuditLogService, AuditLogService)
+- ✅ Blazor WebAssembly project (MudBlazor integration, DI setup)
 
-### 📋 Planned
+### 📋 Phase 4: Advanced Features & UI Pages (PLANNED)
 
-- 🔲 Authentication and Authorization
-- 🔲 Unit and Integration Tests
-- 🔲 Logging (Serilog)
-- 🔲 Performance optimization
+- [ ] Blazor feature pages (list, detail, create/edit)
+- [ ] Audit log viewer page
+- [ ] Client-side form validation
+- [ ] Global state management
+- [ ] Error handling UI
+- [ ] Loading indicators
+- [ ] Navigation menu
+- [ ] Authentication and Authorization (JWT)
+- [ ] Role-based access control (RBAC)
+- [ ] Advanced search & filtering
+- [ ] Bulk operations
+- [ ] Export/Import functionality
+- [ ] PerformedBy user identity population
+- [ ] Unit & integration tests
 
 For detailed implementation checklist, see [CONTRIBUTING.md](CONTRIBUTING.md).
 
 ---
 
-**Status:** 🚧 Under Development | **Current Phase:** WebApi Complete — Blazor UI In Progress (Phase 3/4) | **Last Updated:** April 2026
+**Status:** 🚧 Under Development | **Current Phase:** Phase 3 Complete — UI Feature Pages In Progress (Phase 4/4) | **Last Updated:** April 2026
 
 ## 🔐 Code Standards
 
@@ -278,10 +382,10 @@ Response:
   "message": "Success",
   "result": [
     {
-      "id": "guid",
+      "id": "550e8400-e29b-41d4-a716-446655440000",
       "description": "Example description",
       "amount": 100.00,
-      "createdAt": "2024-04-04T10:00:00Z",
+      "createdAt": "2026-04-04T10:00:00Z",
       "updatedAt": null
     }
   ],
@@ -307,12 +411,78 @@ Response:
   "isSuccess": true,
   "message": "Entity created successfully.",
   "result": {
-    "id": "new-guid",
+    "id": "550e8400-e29b-41d4-a716-446655440000",
     "description": "New transaction",
     "amount": 250.50,
-    "createdAt": "2024-04-04T10:15:00Z",
+    "createdAt": "2026-04-04T10:15:00Z",
     "updatedAt": null
   }
+}
+```
+
+#### Update Entity
+PUT /api/examplesoftdeletableentities/{id}
+Content-Type: application/json
+
+Request:
+```json
+{
+  "description": "Updated description",
+  "amount": 300.00
+}
+```
+
+Response:
+```json
+{
+  "isSuccess": true,
+  "message": "Entity updated successfully.",
+  "result": {
+    "id": "550e8400-e29b-41d4-a716-446655440000",
+    "description": "Updated transaction",
+    "amount": 300.00,
+    "createdAt": "2026-04-04T10:15:00Z",
+    "updatedAt": "2026-04-04T10:30:00Z"
+  }
+}
+```
+
+#### Delete Entity (Soft Delete)
+DELETE /api/examplesoftdeletableentities/{id}
+
+Response:
+```json
+{
+  "isSuccess": true,
+  "message": "Entity deleted successfully."
+}
+```
+
+> The record is marked as deleted (not permanently removed). To view audit logs of this change, query the `AuditLog` table.
+
+#### Get All Audit Logs
+GET /api/auditlogs
+Content-Type: application/json
+
+Response:
+```json
+{
+  "isSuccess": true,
+  "message": "Success",
+  "result": [
+    {
+      "id": "660e8400-e29b-41d4-a716-446655440001",
+      "entityName": "ExampleSoftDeletableEntity",
+      "entityId": "550e8400-e29b-41d4-a716-446655440000",
+      "action": "Create",
+      "oldValues": null,
+      "newValues": "{\"Id\":\"550e8400-e29b-41d4-a716-446655440000\",\"Description\":\"Test\",\"Amount\":100}",
+      "affectedColumns": null,
+      "timestamp": "2026-04-04T10:00:00Z",
+      "performedBy": null
+    }
+  ],
+  "errors": null
 }
 ```
 
@@ -323,6 +493,7 @@ Contributions are welcome! Please see [CONTRIBUTING.md](CONTRIBUTING.md) for:
 - Development guidelines
 - Code style requirements
 - Feature request process
+- Audit system documentation
 
 ## 📄 License
 
@@ -338,4 +509,4 @@ For issues, questions, or suggestions, please open an [issue](https://github.com
 
 ---
 
-**Status:** 🚧 Under Development | **Current Phase:** WebApi Complete — Blazor UI In Progress (Phase 3/4) | **Last Updated:** April 2026
+**Status:** 🚧 Under Development | **Current Phase:** Phase 3 Complete — UI Feature Pages In Progress (Phase 4/4) | **Last Updated:** April 2026
