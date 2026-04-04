@@ -24,15 +24,13 @@ Thank you for your interest in contributing to BankRecon! This document outlines
 - [x] MediatR CQRS setup with command/query handlers
 - [x] FluentValidation validators
 - [x] AutoMapper configuration with reflection-based discovery
-- [x] Pipeline behaviors (ValidationBehavior, LoggingBehavior)
+- [x] Pipeline behaviors (`ValidationBehavior`, `LoggingBehavior`)
 - [x] DependencyInjection registration (`AddApplication()`)
-- [x] Audit Log queries:
-  - [x] GetAllAuditLogsQuery
-  - [x] GetAuditLogsByEntityQuery
+- [x] Audit Log queries (`GetAllAuditLogsQuery`, `GetAuditLogsByEntityQuery`)
 
 #### Infrastructure Layer
 - [x] DbContext (`BankReconDbContext`)
-- [x] Generic Repository<T> implementation
+- [x] Generic `Repository<T>` implementation
 - [x] Specialized `IAuditLogRepository` for audit queries
 - [x] Entity configurations (Fluent API)
 - [x] AuditLog configuration (`AuditLogConfiguration`)
@@ -45,9 +43,9 @@ Thank you for your interest in contributing to BankRecon! This document outlines
 #### Program.cs & Middleware
 - [x] Dependency injection registration (Application + Infrastructure)
 - [x] Swagger/OpenAPI configuration
-- [x] CORS setup for Blazor WebAssembly
+- [x] CORS setup for Blazor WebAssembly (correct policy name + matching ports)
 - [x] Exception handling middleware (`ExceptionHandlingMiddleware`)
-- [x] Pipeline configuration (middleware ordering)
+- [x] Correct middleware ordering (`UseCors` before `UseAuthorization`)
 
 #### Controllers
 - [x] Audit Logs controller (`AuditLogsController`)
@@ -65,39 +63,63 @@ Thank you for your interest in contributing to BankRecon! This document outlines
 
 #### Bsui.Client Layer (API Client Infrastructure)
 - [x] Project scaffolded (`BankRecon.Bsui.Client`)
-- [x] Base API client interface (`IApiClient`)
-- [x] Base API client implementation (`ApiClient`)
+- [x] Base API client interface (`IApiClient`) in `Common/Interfaces/`
+- [x] Base API client implementation (`ApiClient`) in `Common/Services/`
 - [x] Typed HttpClient with `IHttpClientFactory` via `AddHttpClient<IApiClient, ApiClient>()`
-- [x] Feature-specific service interfaces and implementations
-  - [x] `IAuditLogService` / `AuditLogService`
-- [x] DependencyInjection extension (`AddBsuiClient()`)
-- [x] Proper namespacing following project patterns
+- [x] Feature service interfaces separated into `Features/Interfaces/`
+  - [x] `IAuditLogService`
+- [x] Feature service implementations separated into `Features/Services/`
+  - [x] `AuditLogService`
+- [x] DependencyInjection extension (`AddBsuiClient(string baseAddress)`)
 
-#### Blazor WebAssembly Project
-- [x] Blazor WebAssembly project scaffolded (`BankRecon.Bsui`)
-- [x] MudBlazor integrated (v7.12.0) — CSS, JS, `AddMudServices()`
-- [x] `Program.cs` configured (Bsui.Client DI registration, `AddMudServices()`, root components)
-- [x] `App.razor`, `Routes.razor`, `_Import.razor` configured with Bsui.Client namespaces
-- [x] `MainLayout.razor` with MudBlazor layout (`MudThemeProvider`, `MudDialogProvider`, `MudSnackbarProvider`)
-- [x] `Features/` folder scaffolded for feature organization
+### ✅ Phase 4: Bsui Foundation & Audit Log UI (COMPLETED)
 
-### 📍 Phase 4: Advanced Features & UI Pages (IN PROGRESS)
+#### Bsui Foundation
+- [x] `wwwroot/index.html` — correct WASM host entry point with MudBlazor assets and loading indicator
+- [x] `App.razor` — clean Router component (separated from HTML host page)
+- [x] `MainLayout.razor` — MudBlazor layout (`MudThemeProvider`, `MudDialogProvider`, `MudSnackbarProvider`)
+- [x] `Program.cs` — environment-aware API base URL (dev: hardcoded WebApi port, prod: `BaseAddress`)
+- [x] `_Imports.razor` — global usings for MudBlazor, Shared, and Bsui.Client namespaces
 
-#### Blazor Feature Pages
-- [ ] Feature pages for entity management (list, detail, create/edit)
-- [ ] Audit log viewer page
-- [ ] Client-side form validation
-- [ ] Global state management / component communication
-- [ ] Error handling UI components
-- [ ] Loading indicators and spinners
-- [ ] Navigation menu with routing
+#### Audit Log UI Pages
+- [x] `Features/AuditLogs/_Imports.razor` — feature-scoped `IAuditLogService` injection
+- [x] `Features/AuditLogs/Index.razor` — list page with `MudDataGrid`, action color chips, loading skeleton, snackbar error handling
+- [x] `Features/AuditLogs/Detail.razor` — detail page with formatted JSON old/new values, `MudField` display
 
-#### Advanced Features (PLANNED)
+#### Home Page
+- [x] `Features/Home.razor` — dashboard landing page (`@page "/"`)
+
+### 📍 Phase 5: Remaining UI Features (IN PROGRESS)
+
+#### Navigation & Layout (NEXT)
+- [ ] `NavMenu.razor` — Navigation menu component with MudNavMenu
+- [ ] Drawer layout integration in `MainLayout.razor`
+- [ ] Responsive navigation for mobile/desktop
+- [ ] Active route highlighting
+
+#### Entity Management Pages (UPCOMING)
+- [ ] Generic list page template with sorting, filtering, pagination
+- [ ] Generic detail view with formatted display
+- [ ] Create/Edit form pages with MudForm validation
+- [ ] Client-side form validation with error messages
+- [ ] Success/error snackbar notifications
+
+#### Global State Management (PLANNED)
+- [ ] State container service for shared component state
+- [ ] Event notification system for cross-component communication
+- [ ] Cascading parameters for component hierarchy
+
+#### Advanced UI Features (PLANNED)
+- [ ] Error handling UI components (error boundaries, custom error pages)
+- [ ] Loading indicators and skeleton screens
+- [ ] Modal dialogs for confirmations
+- [ ] Bulk operations UI
+- [ ] Export/Import functionality
+
+#### Advanced Backend Features (PLANNED)
 - [ ] Authentication and Authorization (JWT)
 - [ ] Role-based access control (RBAC)
 - [ ] Advanced search & filtering
-- [ ] Bulk operations
-- [ ] Export/Import functionality
 - [ ] PerformedBy user identity population
 - [ ] Unit & integration tests
 - [ ] Performance optimization
@@ -166,7 +188,7 @@ dotnet format
    src/BankRecon.Shared/Features/YourFeature/Dtos/
    ```
 
-3. **Implement IMapFrom<T>** in DTO
+3. **Implement `IMapFrom<T>`** in DTO
    ```csharp
    public class YourDto : IMapFrom<YourEntity>
    {
@@ -185,38 +207,19 @@ dotnet format
    └── Validators/
    ```
 
-5. **Create Handler**
-   ```csharp
-   public class YourCommandHandler : IRequestHandler<YourCommand, ApiResponse<YourDto>>
-   {
-       public async Task<ApiResponse<YourDto>> Handle(...)
-       {
-           // Implementation
-       }
-   }
-   ```
-
-6. **Create Validator** (for Commands)
-   ```csharp
-   public class YourCommandValidator : AbstractValidator<YourCommand>
-   {
-       public YourCommandValidator()
-       {
-           RuleFor(x => x.Property).NotEmpty();
-       }
-   }
-   ```
-
-7. **Create Controller Endpoint** (if public API)
+5. **Create Controller Endpoint**
    ```
    src/BankRecon.WebApi/Controllers/YourController.cs
    ```
 
-8. **Create Client Service** (for Blazor consumption)
+6. **Create Client Service Interface**
    ```
-   src/BankRecon.Bsui.Client/Features/YourFeature/
-   ├── IYourFeatureService.cs
-   └── YourFeatureService.cs
+   src/BankRecon.Bsui.Client/Features/Interfaces/IYourFeatureService.cs
+   ```
+
+7. **Create Client Service Implementation**
+   ```
+   src/BankRecon.Bsui.Client/Features/Services/YourFeatureService.cs
    ```
 
    Register in `src/BankRecon.Bsui.Client/DependencyInjection.cs`:
@@ -224,12 +227,19 @@ dotnet format
    services.AddScoped<IYourFeatureService, YourFeatureService>();
    ```
 
-9. **Create Blazor Pages** (for UI)
+8. **Create Blazor Pages**
    ```
    src/BankRecon.Bsui/Features/YourFeature/
+   ├── _Imports.razor       ← inject IYourFeatureService here
    ├── Index.razor
-   ├── Detail.razor
-   └── Index.razor.cs (code-behind, optional)
+   └── Detail.razor      ← detail page
+   ```
+
+   Add feature-scoped service injection in `_Imports.razor`:
+   ```razor
+   @using BankRecon.Bsui.Client.Features.Interfaces
+   @using BankRecon.Shared.Features.YourFeature.Dtos
+   @inject IYourFeatureService YourFeatureService
    ```
 
 ### Naming Conventions
@@ -237,7 +247,7 @@ dotnet format
 | Element | Convention | Example |
 |---------|-----------|---------|
 | **Command** | `{Action}{EntityName}Command` | `CreateTransactionCommand` |
-| **Query** | `Get{EntityName}{Criteria}Query` | `GetAllTransactionsQuery`, `GetTransactionByIdQuery` |
+| **Query** | `Get{EntityName}{Criteria}Query` | `GetAllTransactionsQuery` |
 | **Handler** | `{Command/Query}Handler` | `CreateTransactionCommandHandler` |
 | **Validator** | `{Command}Validator` | `CreateTransactionValidator` |
 | **DTO** | `{EntityName}Dto` | `TransactionDto` |
@@ -247,167 +257,7 @@ dotnet format
 
 ---
 
-## 📊 Audit & Soft Delete System
-
-### Overview
-
-The application implements a **comprehensive audit trail system** with **soft delete capability**:
-
-- ✅ **Automatic Change Tracking** — All create, update, delete operations are automatically captured
-- ✅ **Soft Delete** — Deleted records are marked as deleted, not permanently removed
-- ✅ **Query Filters** — Soft-deleted entities automatically excluded from queries
-- ✅ **Audit Log Entity** — `AuditLog` stores: action type, old/new values, affected columns, timestamp, user
-- ✅ **Zero Application Code** — Audit capturing happens transparently via `DbContext.SaveChangesAsync()` override
-- ✅ **Audit Log Queries** — Specialized repository with rich query methods
-
-### How It Works
-
-#### 1. Soft Delete Mechanism
-
-When deleting a `SoftDeletableEntity`:
-- Data is **not** permanently removed from the database
-- `IsDeleted = true`, `DeletedAt = DateTimeOffset.UtcNow`, `DeletedBy = {user}` are set
-- Global query filter automatically excludes deleted records: `!IsDeleted`
-- Use `IgnoreQueryFilters()` to retrieve soft-deleted records
-
-**Example:**
-```csharp
-// Delete (soft)
-await repository.DeleteAsync(entityId);  // Marks as deleted
-
-// Restore
-await repository.RestoreAsync(entityId); // Restores the record
-
-// Get including deleted
-var allRecords = await repository.GetAllIncludingDeletedAsync();
-```
-
-#### 2. Audit Log Capturing
-
-Every operation (Create, Update, Delete) is automatically logged in the `AuditLog` table:
-
-**For Create:**
-```json
-{
-  "EntityName": "Transaction",
-  "EntityId": "550e8400-e29b-41d4-a716-446655440000",
-  "Action": "Create",
-  "NewValues": { "Id": "550e8400...", "Description": "Test", "Amount": 100.00, "CreatedAt": "2026-04-04T10:00:00Z" },
-  "OldValues": null,
-  "AffectedColumns": null,
-  "Timestamp": "2026-04-04T10:00:00Z",
-  "PerformedBy": null  // Populated if user identity is available
-}
-```
-
-**For Update:**
-```json
-{
-  "EntityName": "Transaction",
-  "EntityId": "550e8400-e29b-41d4-a716-446655440000",
-  "Action": "Update",
-  "OldValues": { "Description": "Test", "Amount": 100.00 },
-  "NewValues": { "Description": "Updated Test", "Amount": 150.00 },
-  "AffectedColumns": "Description, Amount",
-  "Timestamp": "2026-04-04T10:15:00Z",
-  "PerformedBy": null  // Populated if user identity is available
-}
-```
-
-**For Delete (Soft):**
-```json
-{
-  "EntityName": "Transaction",
-  "EntityId": "550e8400-e29b-41d4-a716-446655440000",
-  "Action": "Delete",
-  "OldValues": { "Description": "Updated Test", "Amount": 150.00, "DeletedAt": "2026-04-04T10:20:00Z", "IsDeleted": true },
-  "NewValues": null,
-  "AffectedColumns": null,
-  "Timestamp": "2026-04-04T10:20:00Z",
-  "PerformedBy": null  // Populated if user identity is available
-}
-```
-
-#### 3. Audit Field Tracking
-
-**Create Operations:**
-- `CreatedAt` — Automatically set to `DateTimeOffset.UtcNow`
-- `CreatedBy` — Optional; set by application code or user identity (see enhancement below)
-
-**Update Operations:**
-- `UpdatedAt` — Automatically set to `DateTimeOffset.UtcNow`
-- `UpdatedBy` — Optional; set by application code or user identity (see enhancement below)
-
-**Delete Operations (Soft):**
-- `DeletedAt` — Automatically set to `DateTimeOffset.UtcNow`
-- `DeletedBy` — Optional; set by application code or user identity (see enhancement below)
-
-#### 4. Querying Audit Logs
-
-Use the `IAuditLogRepository` to query audit trails. It provides specialized methods beyond basic CRUD:
-
-```csharp
-// Get all audit logs
-var allLogs = await _auditLogRepository.GetAllAsync(cancellationToken);
-
-// Get logs for a specific entity
-var entityLogs = await _auditLogRepository.GetByEntityAsync("Transaction", entityId, cancellationToken);
-
-// Get logs for all instances of an entity type
-var allTransactionLogs = await _auditLogRepository.GetByEntityNameAsync("Transaction", cancellationToken);
-
-// Get logs within a date range
-var logsInRange = await _auditLogRepository.GetByDateRangeAsync(startDate, endDate, cancellationToken);
-
-// Get logs by action type (Create, Update, Delete)
-var createdLogs = await _auditLogRepository.GetByActionAsync("Create", cancellationToken);
-```
-
-#### 5. Enhancement: Capture `PerformedBy` & User Identity
-
-To automatically populate `CreatedBy`, `UpdatedBy`, `DeletedBy`, and `PerformedBy`, inject `IHttpContextAccessor`:
-
-```csharp
-// In BankReconDbContext
-private readonly IHttpContextAccessor _httpContextAccessor;
-
-public BankReconDbContext(
-    DbContextOptions<BankReconDbContext> options,
-    IHttpContextAccessor httpContextAccessor)
-    : base(options)
-{
-    _httpContextAccessor = httpContextAccessor;
-}
-
-private string? GetCurrentUser()
-{
-    return _httpContextAccessor?.HttpContext?.User?.FindFirst(ClaimTypes.NameIdentifier)?.Value
-        ?? _httpContextAccessor?.HttpContext?.User?.Identity?.Name;
-}
-
-// Then in OnBeforeSaveChanges(), use GetCurrentUser() to populate audit entry user
-```
-
----
-
 ## 🌐 Bsui.Client Layer
-
-### Overview
-
-The `BankRecon.Bsui.Client` layer serves as the **API client infrastructure** for the Blazor WebAssembly frontend. It abstracts HTTP communication and provides type-safe services for consuming WebAPI endpoints.
-
-### Architecture
-
-**Responsibility:** Bridge between Blazor components and the WebAPI backend via HTTP
-
-**Dependency Flow:**
-```
-BankRecon.Bsui (Blazor Components)
-    ↓ injects
-BankRecon.Bsui.Client (API Services)
-    ↓ calls
-BankRecon.WebApi (REST Endpoints)
-```
 
 ### Layer Structure
 
@@ -419,146 +269,77 @@ BankRecon.Bsui.Client/
 │   └── Services/
 │       └── ApiClient.cs                 # Base HTTP client implementation
 ├── Features/
-│   ├── AuditLogs/
-│   │   ├── IAuditLogService.cs          # Feature-specific interface
-│   │   └── AuditLogService.cs           # Feature-specific implementation
-│   └── YourFeature/
-│       ├── IYourFeatureService.cs
-│       └── YourFeatureService.cs
+│   ├── Interfaces/                      # All feature service contracts
+│   │   └── IAuditLogService.cs
+│   └── Services/                        # All feature service implementations
+│       └── AuditLogService.cs
 ├── BankRecon.Bsui.Client.csproj
 └── DependencyInjection.cs
 ```
 
-### Key Patterns
-
-#### 1. Base API Client (IApiClient)
-
-Provides a reusable abstraction for all HTTP operations:
-
-```csharp
-public interface IApiClient
-{
-    Task<ApiResponse<T>> GetAsync<T>(string endpoint, CancellationToken cancellationToken = default);
-    Task<ApiResponse<TResponse>> PostAsync<TRequest, TResponse>(string endpoint, TRequest request, CancellationToken cancellationToken = default);
-    Task<ApiResponse<TResponse>> PutAsync<TRequest, TResponse>(string endpoint, TRequest request, CancellationToken cancellationToken = default);
-    Task<ApiResponse<T>> DeleteAsync<T>(string endpoint, CancellationToken cancellationToken = default);
-}
-```
-
-**Benefits:**
-- ✅ Centralized error handling
-- ✅ Automatic `ApiResponse<T>` deserialization
-- ✅ Consistent HTTP handling across all services
-- ✅ Easy to mock in unit tests
-
-#### 2. Feature-Specific Services
-
-Each feature provides a typed service matching the WebAPI controllers:
-
-```csharp
-public interface IAuditLogService
-{
-    Task<ApiResponse<List<AuditLogDto>>> GetAllAsync(CancellationToken cancellationToken = default);
-    Task<ApiResponse<List<AuditLogDto>>> GetByEntityAsync(string entityName, string entityId, CancellationToken cancellationToken = default);
-}
-```
-
-**Usage in Blazor Components:**
-
-```razor
-@inject IAuditLogService AuditLogService
-
-@code {
-    private List<AuditLogDto> auditLogs = new();
-    private bool isLoading = false;
-
-    protected override async Task OnInitializedAsync()
-    {
-        isLoading = true;
-        var response = await AuditLogService.GetAllAsync();
-        if (response.IsSuccess && response.Result != null)
-        {
-            auditLogs = response.Result;
-        }
-        isLoading = false;
-    }
-}
-```
-
-#### 3. Typed HttpClient Registration
-
-Uses `IHttpClientFactory` for automatic instance reuse and lifecycle management:
-
-```csharp
-// In DependencyInjection.cs
-public static IServiceCollection AddBsuiClient(
-    this IServiceCollection services,
-    string baseAddress)
-{
-    services.AddHttpClient<IApiClient, ApiClient>(client =>
-    {
-        client.BaseAddress = new Uri(baseAddress);
-    });
-
-    services.AddScoped<IAuditLogService, AuditLogService>();
-
-    return services;
-}
-```
-
-Called in `BankRecon.Bsui/Program.cs`:
-
-```csharp
-builder.Services.AddBsuiClient(builder.HostEnvironment.BaseAddress);
-```
+> **Note:** Interfaces and implementations are intentionally separated into `Features/Interfaces/` and `Features/Services/` to maintain Clean Architecture separation of concerns.
 
 ### Guidelines for New Services
 
-When adding a new feature service:
+1. Create interface in `Features/Interfaces/I{FeatureName}Service.cs`
+2. Create implementation in `Features/Services/{FeatureName}Service.cs`
+3. Register in `DependencyInjection.cs`
+4. Add `@using BankRecon.Bsui.Client.Features.Interfaces` to feature `_Imports.razor`
 
-1. **Create the interface** in `Features/{FeatureName}/I{FeatureName}Service.cs`
-   ```csharp
-   public interface I{FeatureName}Service
-   {
-       Task<ApiResponse<...>> Get...Async(...);
-       Task<ApiResponse<...>> Create...Async(...);
-       // etc.
-   }
-   ```
+---
 
-2. **Create the implementation** in `Features/{FeatureName}/{FeatureName}Service.cs`
-   ```csharp
-   public class {FeatureName}Service : I{FeatureName}Service
-   {
-       private readonly IApiClient _apiClient;
+## 🖥️ Bsui Layer
 
-       public {FeatureName}Service(IApiClient apiClient)
-       {
-           _apiClient = apiClient;
-       }
+### Key Setup Notes
 
-       public async Task<ApiResponse<...>> Get...Async(...)
-       {
-           return await _apiClient.GetAsync<...>("api/{endpoint}", cancellationToken);
-       }
-   }
-   ```
+- **`wwwroot/index.html`** is the WASM host — this is where MudBlazor CSS/JS and `blazor.webassembly.js` are referenced
+- **`App.razor`** is a pure Router component only — no HTML scaffolding
+- **`Program.cs`** uses environment-aware API URL:
+  ```csharp
+  var apiBaseUrl = builder.HostEnvironment.IsDevelopment()
+      ? "https://localhost:{webapi-port}"   // must match WebApi launchSettings.json
+      : builder.HostEnvironment.BaseAddress;
+  ```
+- **`_Imports.razor`** (root) — global usings applied to all pages
+- **`_Imports.razor`** (feature folder) — feature-scoped service injections
 
-3. **Register in DependencyInjection.cs**
-   ```csharp
-   services.AddScoped<I{FeatureName}Service, {FeatureName}Service>();
-   ```
+### Feature Folder Structure
 
-4. **Add using statement in `_Import.razor`**
-   ```razor
-   @using BankRecon.Bsui.Client.Features.{FeatureName}
-   ```
+```
+BankRecon.Bsui/
+├── Features/
+│   ├── Home.razor
+│   └── YourFeature/
+│       ├── _Imports.razor    ← @inject IYourFeatureService, @using Dtos
+│       ├── Index.razor       ← list page
+│       └── Detail.razor      ← detail page
+├── Shared/
+│   └── MainLayout.razor
+├── wwwroot/
+│   └── index.html
+├── App.razor
+├── _Imports.razor
+└── Program.cs
+```
 
-### Dependencies
+### MudBlazor Component Notes (v7.12.0)
 
-- **Minimal:** References only `BankRecon.Shared` (for DTOs and `ApiResponse<T>`)
-- **No backend dependencies:** Does not reference `BankRecon.Application`, `BankRecon.Infrastructure`, or `BankRecon.Domain`
-- **NuGet packages:** `Microsoft.Extensions.Http` (for typed HttpClient support)
+| Issue | Correct Usage |
+|-------|--------------|
+| `MudChip` requires generic type | Always use `<MudChip T="string">` |
+| Column in `MudDataGrid` | Use `<PropertyColumn>` for bound props, `<TemplateColumn>` for custom content |
+| `SkeletonType` | Only `Text`, `Circle`, `Rectangle` are valid |
+
+---
+
+## 📊 Audit & Soft Delete System
+
+### Overview
+
+- ✅ **Automatic Change Tracking** — All create, update, delete operations automatically captured
+- ✅ **Soft Delete** — Deleted records marked as deleted, not permanently removed
+- ✅ **Query Filters** — Soft-deleted entities automatically excluded
+- ✅ **Audit Log Viewer** — UI pages available at `/auditlogs` and `/auditlogs/{id}`
 
 ---
 
@@ -569,171 +350,20 @@ Before submitting a PR, ensure:
 - [ ] Code follows `.editorconfig` rules
 - [ ] Naming conventions are applied
 - [ ] No hardcoded values (use configuration)
-- [ ] Proper error handling (throw domain exceptions in backend, handle `ApiResponse` in client)
-- [ ] Input validation in validators (backend) and form validation (Blazor)
-- [ ] AutoMapper profiles implemented (via `IMapFrom<T>`)
-- [ ] XML documentation added to public methods
-- [ ] No direct repository access from UI (use MediatR in backend, services in client)
+- [ ] Proper error handling (domain exceptions backend, `ApiResponse` handling in client)
+- [ ] AutoMapper profiles implemented via `IMapFrom<T>`
+- [ ] XML documentation on public methods
 - [ ] Domain layer remains dependency-free
-- [ ] Soft delete is used for appropriate entities
-- [ ] Audit logs are captured for all operations
-- [ ] Specialized repositories used for non-BaseEntity entities
-- [ ] Client services properly abstracted behind interfaces
+- [ ] Soft delete used for appropriate entities
+- [ ] Client service interface in `Features/Interfaces/`
+- [ ] Client service implementation in `Features/Services/`
 - [ ] Feature services registered in `DependencyInjection.cs`
-- [ ] Tests pass (if added)
-
----
-
-## 🔐 Dependency Injection Rules
-
-### ✅ Correct Pattern (Backend)
-
-```csharp
-// In handler or service
-private readonly IRepository<Entity> _repository;
-
-public MyHandler(IRepository<Entity> repository)
-{
-    _repository = repository;
-}
-```
-
-### ✅ Correct Pattern (Client)
-
-```csharp
-// In service
-private readonly IApiClient _apiClient;
-
-public MyService(IApiClient apiClient)
-{
-    _apiClient = apiClient;
-}
-```
-
-### ❌ Anti-patterns
-
-```csharp
-// DON'T: Static access
-var result = EntityRepository.GetAll();
-
-// DON'T: Service locator
-var repo = ServiceLocator.GetService<IRepository>();
-
-// DON'T: Direct instantiation
-var repo = new Repository(dbContext);
-var httpClient = new HttpClient();
-```
-
----
-
-## 📁 Project File Structure Rules
-
-### Domain Layer
-```
-BankRecon.Domain/
-├── Common/
-│   ├── BaseEntity.cs
-│   ├── SoftDeletableEntity.cs
-│   └── Interfaces/
-│       ├── IHasKey.cs
-│       ├── ICreatable.cs
-│       ├── IUpdatable.cs
-│       └── ISoftDeletable.cs
-└── Entities/
-    ├── AuditLog.cs
-    └── YourEntity.cs
-```
-
-### Application Layer
-```
-BankRecon.Application/
-├── Common/
-│   ├── Behaviors/
-│   ├── Exceptions/
-│   ├── Interfaces/
-│   │   ├── IRepository.cs
-│   │   └── IAuditLogRepository.cs
-│   └── Mappings/
-├── Features/
-│   ├── AuditLogs/
-│   │   └── Queries/
-│   │       ├── GetAllAuditLogs/
-│   │       └── GetAuditLogsByEntity/
-│   └── YourFeature/
-│       ├── Commands/
-│       ├── Queries/
-│       └── Validators/
-└── DependencyInjection.cs
-```
-
-### Infrastructure Layer
-```
-BankRecon.Infrastructure/
-├── Data/
-│   └── BankReconDbContext.cs
-├── Repositories/
-│   ├── Repository.cs
-│   └── AuditLogRepository.cs
-├── Configurations/
-│   ├── BaseEntityConfiguration.cs
-│   ├── SoftDeletableEntityConfiguration.cs
-│   ├── AuditLogConfiguration.cs
-│   └── YourEntityConfiguration.cs
-└── DependencyInjection.cs
-```
-
-### Shared Layer
-```
-BankRecon.Shared/
-├── Common/
-│   ├── Responses/
-│   ├── Models/
-│   └── Mappings/
-└── Features/
-    ├── AuditLogs/
-    │   └── Dtos/
-    │       └── AuditLogDto.cs
-    └── YourFeature/
-        └── Dtos/
-            └── YourDto.cs
-```
-
-### Bsui.Client Layer
-```
-BankRecon.Bsui.Client/
-├── Common/
-│   ├── Interfaces/
-│   │   └── IApiClient.cs
-│   └── Services/
-│       └── ApiClient.cs
-├── Features/
-│   ├── AuditLogs/
-│   │   ├── IAuditLogService.cs
-│   │   └── AuditLogService.cs
-│   └── YourFeature/
-│       ├── IYourFeatureService.cs
-│       └── YourFeatureService.cs
-├── BankRecon.Bsui.Client.csproj
-└── DependencyInjection.cs
-```
-
-### Blazor UI Layer
-```
-BankRecon.Bsui/
-├── Pages/
-│   └── YourFeature/
-│       ├── Index.razor
-│       └── Detail.razor
-├── Shared/
-│   ├── MainLayout.razor
-│   ├── NavMenu.razor
-│   └── Components/
-├── Features/
-├── App.razor
-├── Routes.razor
-├── _Import.razor
-└── Program.cs
-```
+- [ ] Blazor feature has `_Imports.razor` with service injection
+- [ ] `MudChip` uses `T="string"` type parameter
+- [ ] `MudDataGrid` uses `PropertyColumn` / `TemplateColumn` (not `Column`)
+- [ ] Responsive design tested on mobile/desktop
+- [ ] Loading states and error handling implemented
+- [ ] Snackbar notifications for user feedback
 
 ---
 
@@ -744,84 +374,12 @@ BankRecon.Bsui/
    git checkout -b feature/your-feature-name
    ```
 
-2. **Make changes and commit**
+2. **Commit with conventional format**
    ```bash
-   git add .
    git commit -m "feat: add your feature description"
    ```
 
-3. **Push to remote**
-   ```bash
-   git push origin feature/your-feature-name
-   ```
-
-4. **Create Pull Request**
-   - Link related issues
-   - Describe changes clearly
-   - Request review from maintainers
-
-### Commit Message Format
-
-```
-<type>: <subject>
-
-<body>
-
-<footer>
-```
-
 **Types:** `feat`, `fix`, `docs`, `style`, `refactor`, `test`, `chore`
-
-**Example:**
-```
-feat: add audit log service to Bsui.Client layer
-
-- Create IAuditLogService interface
-- Implement AuditLogService with GetAll and GetByEntity methods
-- Register service in DependencyInjection
-- Add feature usings to _Import.razor
-
-Closes #123
-```
-
----
-
-## ✅ Quality Standards
-
-### Required
-
-- Code must compile without warnings
-- All public APIs must have XML documentation
-- Entity configurations must use Fluent API
-- No raw queries (use Repository pattern)
-- Domain layer must be dependency-free
-- All soft-deletable entities must use `SoftDeletableEntity`
-- Audit logs must be captured for all operations
-- Non-BaseEntity entities must use specialized repositories
-- Client services must be properly abstracted behind interfaces
-- Feature services must be registered in DI
-
-### Recommended
-
-- Unit tests for business logic
-- Integration tests for handlers and services
-- Performance tests for queries
-- Error scenario testing
-- Documentation for complex features
-- Component tests for Blazor pages
-
----
-
-## 🐛 Reporting Issues
-
-When reporting bugs, please include:
-
-1. **Description** — What doesn't work?
-2. **Steps to reproduce** — How to trigger the bug
-3. **Expected behavior** — What should happen?
-4. **Actual behavior** — What actually happens?
-5. **Environment** — OS, .NET version, Visual Studio version
-6. **Logs** — Error messages or stack traces
 
 ---
 
@@ -834,12 +392,6 @@ When reporting bugs, please include:
 - [Entity Framework Core](https://docs.microsoft.com/en-us/ef/core/)
 - [Blazor Documentation](https://docs.microsoft.com/en-us/aspnet/core/blazor/)
 - [MudBlazor Components](https://mudblazor.com/)
-
----
-
-## 📞 Questions?
-
-Open a discussion or issue on GitHub for questions about the project architecture or development process.
 
 ---
 

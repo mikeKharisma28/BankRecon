@@ -21,11 +21,10 @@ builder.Services.AddCors(options =>
     options.AddPolicy("AllowBlazor", policy =>
     {
         policy.WithOrigins(
-                "https://localhost:7001",  // Adjust to your Blazor WASM port
-                "http://localhost:5001")   // Development non-HTTPS
+                "https://localhost:57123",
+                "http://localhost:57124")
               .AllowAnyMethod()
-              .AllowAnyHeader()
-              .AllowCredentials();
+              .AllowAnyHeader();
     });
 });
 
@@ -39,11 +38,12 @@ if (app.Environment.IsDevelopment())
 }
 
 app.UseHttpsRedirection();
-app.UseCors("BlazorWasm");
-app.UseAuthorization();
 
 // Add exception handling middleware
 app.UseMiddleware<ExceptionHandlingMiddleware>();
+
+app.UseCors("AllowBlazor");
+app.UseAuthorization();
 
 app.MapControllers();
 

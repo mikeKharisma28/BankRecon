@@ -1,6 +1,7 @@
 using BankRecon.Bsui.Client.Common.Interfaces;
 using BankRecon.Bsui.Client.Common.Services;
-using BankRecon.Bsui.Client.Features.AuditLogs;
+using BankRecon.Bsui.Client.Features.Interfaces;
+using BankRecon.Bsui.Client.Features.Services;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace BankRecon.Bsui.Client;

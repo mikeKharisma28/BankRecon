@@ -1,0 +1,13 @@
+@using Microsoft.AspNetCore.Components.Routing
+@using MudBlazor
+
+<MudNavMenu>
+    <MudNavLink Href="/" Match="NavLinkMatch.All">
+        <MudIcon Icon="@Icons.Material.Filled.Home" Class="mr-2"/>
+        Home
+    </MudNavLink>
+    <MudNavLink Href="/auditlogs">
+        <MudIcon Icon="@Icons.Material.Filled.History" Class="mr-2"/>
+        Audit Logs
+    </MudNavLink>
+</MudNavMenu>

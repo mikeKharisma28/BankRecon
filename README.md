@@ -54,7 +54,7 @@ graph TD;
 | **Frontend** | Blazor WebAssembly, MudBlazor 7.x |
 | **Client** | Typed HttpClient, Microsoft.Extensions.Http |
 | **API** | ASP.NET Core 8 Web API, Swagger/OpenAPI |
-| **Application** | MediatR 12.x (CQRS), AutoMapper 12.x, FluentValidation 10.x |
+| **Application** | MediatR 12.x (CQRS), AutoMapper 16.x, FluentValidation 10.x |
 | **Domain** | .NET 8 (no external dependencies) |
 | **Infrastructure** | Entity Framework Core 8, SQL Server, Audit Log Tracking |
 | **Shared** | API Response models, Pagination models |
@@ -126,18 +126,26 @@ src/
 │   │   └── Services/
 │   │       └── ApiClient.cs           # Base HTTP client implementation
 │   ├── Features/
-│   │   └── AuditLogs/
-│   │       ├── IAuditLogService.cs    # Feature-specific interface
+│   │   ├── Interfaces/
+│   │   │   └── IAuditLogService.cs    # Feature-specific interface
+│   │   └── Services/
 │   │       └── AuditLogService.cs     # Feature-specific implementation
 │   └── DependencyInjection.cs         # Bsui.Client service registration
 │
 └── BankRecon.Bsui/                    # Blazor WebAssembly UI
-    ├── Pages/
-    ├── Shared/
     ├── Features/
+    │   ├── Home.razor                 # Home / dashboard page
+    │   └── AuditLogs/
+    │       ├── _Imports.razor          # Feature-scoped service injection
+    │       ├── Index.razor             # Audit log list with MudDataGrid
+    │       └── Detail.razor            # Audit log detail view
+    ├── Shared/
+    │   └── MainLayout.razor
+    ├── wwwroot/
+    │   └── index.html
     ├── App.razor
     ├── Routes.razor
-    ├── _Import.razor
+    ├── _Imports.razor
     └── Program.cs
 ```
 
@@ -161,15 +169,25 @@ src/
 - **Typed HttpClient** - Uses `IHttpClientFactory` for efficient resource management
 - **Dependency Injection** - Clean DI integration via `AddBsuiClient()` extension
 
+### Blazor WebAssembly UI ✅
+
+- **Audit Log Viewer** - List page with `MudDataGrid`, action color chips, loading skeleton
+- **Audit Log Detail** - Detail page with formatted JSON old/new values display
+- **Home Page** - Dashboard landing page
+- **MudBlazor Integration** - Theme provider, dialog provider, snackbar notifications
+
 ### Audit & Soft Delete System ✅
 
 #### Soft Delete
+
 - Data is never permanently removed; instead marked as deleted
 - Automatic query filtering excludes deleted records
 - Full restore capability available
 
 #### Audit Logging
+
 Every operation is automatically logged with:
+
 - **Action Type** — Create, Update, or Delete
 - **Old Values** — Previous state (JSON serialized)
 - **New Values** — Current state (JSON serialized)
@@ -314,15 +332,22 @@ await repository.RestoreAsync(id);
 - ✅ Feature-specific services (IAuditLogService, AuditLogService)
 - ✅ Blazor WebAssembly project (MudBlazor integration, DI setup)
 
-### 📋 Phase 4: Advanced Features & UI Pages (PLANNED)
+### ✅ Phase 4: Bsui Foundation & Audit Log UI (COMPLETED)
 
-- [ ] Blazor feature pages (list, detail, create/edit)
-- [ ] Audit log viewer page
+- ✅ Bsui Foundation (index.html, App.razor, MainLayout.razor, Program.cs, _Imports.razor)
+- ✅ Home page (dashboard landing)
+- ✅ Audit Log list page (MudDataGrid, action color chips, loading skeleton)
+- ✅ Audit Log detail page (formatted JSON old/new values, MudField display)
+- ✅ Feature-scoped `_Imports.razor` with service injection
+
+### 📋 Phase 5: Remaining UI Features (IN PROGRESS)
+
+- [ ] Navigation menu with routing (`NavMenu.razor`)
+- [ ] Drawer layout in `MainLayout.razor`
+- [ ] Entity management pages (list, detail, create/edit forms)
 - [ ] Client-side form validation
 - [ ] Global state management
-- [ ] Error handling UI
-- [ ] Loading indicators
-- [ ] Navigation menu
+- [ ] Error handling UI components
 - [ ] Authentication and Authorization (JWT)
 - [ ] Role-based access control (RBAC)
 - [ ] Advanced search & filtering
@@ -335,7 +360,7 @@ For detailed implementation checklist, see [CONTRIBUTING.md](CONTRIBUTING.md).
 
 ---
 
-**Status:** 🚧 Under Development | **Current Phase:** Phase 3 Complete — UI Feature Pages In Progress (Phase 4/4) | **Last Updated:** April 2026
+**Status:** 🚧 Under Development | **Current Phase:** Phase 5 — Remaining UI Features In Progress | **Last Updated:** April 2026
 
 ## 🔐 Code Standards
 
@@ -509,4 +534,4 @@ For issues, questions, or suggestions, please open an [issue](https://github.com
 
 ---
 
-**Status:** 🚧 Under Development | **Current Phase:** Phase 3 Complete — UI Feature Pages In Progress (Phase 4/4) | **Last Updated:** April 2026
+**Status:** 🚧 Under Development | **Current Phase:** Phase 5 — Remaining UI Features In Progress | **Last Updated:** April 2026

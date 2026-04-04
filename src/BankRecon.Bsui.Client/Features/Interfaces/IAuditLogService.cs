@@ -1,7 +1,7 @@
 using BankRecon.Shared.Common.Responses;
 using BankRecon.Shared.Features.AuditLogs.Dtos;
 
-namespace BankRecon.Bsui.Client.Features.AuditLogs;
+namespace BankRecon.Bsui.Client.Features.Interfaces;
 
 /// <summary>
 /// Client-side service interface for audit log operations.

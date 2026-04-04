@@ -1,0 +1,175 @@
+@page "/auditlogs/{LogIdParam}"
+@using System.Text.Json
+@using BankRecon.Bsui.Client.Features.Interfaces
+@using BankRecon.Shared.Features.AuditLogs.Dtos
+@using Microsoft.AspNetCore.Components.Web
+@using MudBlazor
+@inject ISnackbar Snackbar
+@inject NavigationManager Navigation
+
+<PageTitle>Audit Log Detail</PageTitle>
+
+<MudContainer MaxWidth="MaxWidth.Large" Class="mt-6">
+    <MudButton Variant="Variant.Text" Color="Color.Primary" OnClick="@(() => Navigation.NavigateTo("/auditlogs"))" Class="mb-4">
+        <MudIcon Icon="@Icons.Material.Filled.ArrowBack" Class="mr-2"/>
+        Back to Logs
+    </MudButton>
+
+    @if (isLoading)
+    {
+        <MudProgressLinear Indeterminate="true" Class="mb-3"/>
+        <MudSkeleton SkeletonType="SkeletonType.Rectangle" Height="600px"/>
+    }
+    else if (auditLog == null)
+    {
+        <MudAlert Severity="Severity.Error">Audit log not found.</MudAlert>
+    }
+    else
+    {
+        <MudGrid>
+            <MudItem xs="12" sm="6">
+                <MudPaper Class="p-4 mb-4">
+                    <MudText Typo="Typo.h5" Class="mb-4">Audit Log Information</MudText>
+
+                    <MudField Label="Timestamp" Variant="Variant.Outlined" ReadOnly="true" Class="mb-3">
+                        <MudText>@auditLog.Timestamp.ToString("g")</MudText>
+                    </MudField>
+
+                    <MudField Label="Entity" Variant="Variant.Outlined" ReadOnly="true" Class="mb-3">
+                        <MudText>@auditLog.EntityName</MudText>
+                    </MudField>
+
+                    <MudField Label="Entity ID" Variant="Variant.Outlined" ReadOnly="true" Class="mb-3">
+                        <MudText Typo="Typo.caption" Class="text-break">@auditLog.EntityId</MudText>
+                    </MudField>
+
+                    <MudField Label="Action" Variant="Variant.Outlined" ReadOnly="true" Class="mb-3">
+                        <MudChip T="string" Size="Size.Small" Icon="@GetActionIcon(auditLog.Action)"
+                                 Color="@GetActionColor(auditLog.Action)" Variant="Variant.Filled">
+                            @auditLog.Action
+                        </MudChip>
+                    </MudField>
+
+                    <MudField Label="Performed By" Variant="Variant.Outlined" ReadOnly="true" Class="mb-3">
+                        <MudText>@(string.IsNullOrEmpty(auditLog.PerformedBy) ? "—" : auditLog.PerformedBy)</MudText>
+                    </MudField>
+
+                    @if (!string.IsNullOrEmpty(auditLog.AffectedColumns))
+                    {
+                        <MudField Label="Affected Columns" Variant="Variant.Outlined" ReadOnly="true" Class="mb-3">
+                            <MudText Typo="Typo.caption">@auditLog.AffectedColumns</MudText>
+                        </MudField>
+                    }
+                </MudPaper>
+            </MudItem>
+
+            <MudItem xs="12" sm="6">
+                @if (!string.IsNullOrEmpty(auditLog.OldValues))
+                {
+                    <MudPaper Class="p-4 mb-4">
+                        <MudText Typo="Typo.h5" Class="mb-3">Old Values</MudText>
+                        <MudTextField T="string" Value="@FormatJson(auditLog.OldValues)" ReadOnly="true"
+                                      Multiline="true" Rows="10" Variant="Variant.Outlined" FullWidth="true"/>
+                    </MudPaper>
+                }
+
+                @if (!string.IsNullOrEmpty(auditLog.NewValues))
+                {
+                    <MudPaper Class="p-4">
+                        <MudText Typo="Typo.h5" Class="mb-3">New Values</MudText>
+                        <MudTextField T="string" Value="@FormatJson(auditLog.NewValues)" ReadOnly="true"
+                                      Multiline="true" Rows="10" Variant="Variant.Outlined" FullWidth="true"/>
+                    </MudPaper>
+                }
+            </MudItem>
+        </MudGrid>
+    }
+</MudContainer>
+
+@code {
+    [Parameter]
+    public string? LogIdParam { get; set; }
+
+    private AuditLogDto? auditLog;
+    private bool isLoading = true;
+
+    protected override async Task OnInitializedAsync()
+    {
+        if (string.IsNullOrEmpty(LogIdParam) || !Guid.TryParse(LogIdParam, out var logId))
+        {
+            Snackbar.Add("Invalid audit log ID", Severity.Error);
+            Navigation.NavigateTo("/auditlogs");
+            return;
+        }
+
+        await LoadAuditLogAsync(logId);
+    }
+
+    private async Task LoadAuditLogAsync(Guid logId)
+    {
+        isLoading = true;
+
+        try
+        {
+            var response = await AuditLogService.GetAllAsync();
+
+            if (response.IsSuccess && response.Result != null)
+            {
+                auditLog = response.Result.FirstOrDefault(x => x.Id == logId);
+
+                if (auditLog == null)
+                {
+                    Snackbar.Add("Audit log not found", Severity.Error);
+                }
+            }
+            else
+            {
+                Snackbar.Add(response.Message ?? "Failed to load audit logs", Severity.Error);
+            }
+        }
+        catch (Exception ex)
+        {
+            Snackbar.Add($"Error loading audit log: {ex.Message}", Severity.Error);
+        }
+        finally
+        {
+            isLoading = false;
+        }
+    }
+
+    private string FormatJson(string? json)
+    {
+        if (string.IsNullOrEmpty(json))
+        {
+            return string.Empty;
+        }
+
+        try
+        {
+            using var doc = JsonDocument.Parse(json);
+            return JsonSerializer.Serialize(doc.RootElement, new JsonSerializerOptions { WriteIndented = true });
+        }
+        catch
+        {
+            return json;
+        }
+    }
+
+    private string GetActionIcon(string action) =>
+        action switch
+        {
+            "Create" => Icons.Material.Filled.Add,
+            "Update" => Icons.Material.Filled.Edit,
+            "Delete" => Icons.Material.Filled.Delete,
+            _ => Icons.Material.Filled.Info
+        };
+
+    private Color GetActionColor(string action) =>
+        action switch
+        {
+            "Create" => Color.Success,
+            "Update" => Color.Warning,
+            "Delete" => Color.Error,
+            _ => Color.Default
+        };
+}

@@ -18,6 +18,6 @@
     <ProjectReference Include="..\BankRecon.Shared\BankRecon.Shared.csproj" />
   </ItemGroup>
   <ItemGroup>
-    <Folder Include="Features\" />
+    <Folder Include="Pages\" />
   </ItemGroup>
 </Project>
