@@ -1,78 +1,45 @@
-@page "/auditlogs"
+@page "/audit-logs"
 @using System.Text.Json
 @using BankRecon.Bsui.Client.Features.Interfaces
+@using BankRecon.Bsui.Features.AuditLogs.Components
 @using BankRecon.Shared.Features.AuditLogs.Dtos
-@using Microsoft.AspNetCore.Components.Web
-@using MudBlazor
 @inject IAuditLogService AuditLogService
-@inject ISnackbar Snackbar
 @inject NavigationManager Navigation
 
 <PageTitle>Audit Logs</PageTitle>
 
-<MudContainer MaxWidth="MaxWidth.Large" Class="mt-6">
-    <MudText Typo="Typo.h4" Class="mb-4">Audit Logs</MudText>
+<div class="container mt-4">
+    <div class="row mb-4">
+        <div class="col-md-6">
+            <h2>Audit Logs</h2>
+        </div>
+        <div class="col-md-6 text-end">
+            <button class="btn btn-primary" @onclick="RefreshAsync" disabled="@isLoading">
+                <span class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true" style="display: @(isLoading ? "inline-block" : "none");"></span>
+                Refresh
+            </button>
+        </div>
+    </div>
 
-    <MudPaper Class="p-4 mb-4">
-        <MudButton Variant="Variant.Filled" Color="Color.Primary" OnClick="RefreshAsync" Class="mb-3">
-            <MudIcon Icon="@Icons.Material.Filled.Refresh" Class="mr-2"/>
-            Refresh
-        </MudButton>
-
-        @if (isLoading)
-        {
-            <MudProgressLinear Indeterminate="true" Class="mb-3"/>
-            <MudSkeleton SkeletonType="SkeletonType.Rectangle" Height="400px"/>
-        }
-        else if (auditLogs == null || auditLogs.Count == 0)
-        {
-            <MudAlert Severity="Severity.Info">No audit logs found.</MudAlert>
-        }
-        else
-        {
-            <MudDataGrid Items="@auditLogs.OrderByDescending(x => x.Timestamp)" Hover="true" Dense="true" Striped="true">
-                <Columns>
-                    <PropertyColumn Property="x => x.Timestamp" Title="Timestamp" Sortable="true">
-                        <CellTemplate>
-                            @context.Item.Timestamp.ToString("g")
-                        </CellTemplate>
-                    </PropertyColumn>
-                    <PropertyColumn Property="x => x.EntityName" Title="Entity" Sortable="true"/>
-                    <PropertyColumn Property="x => x.EntityId" Title="Entity ID" Sortable="true">
-                        <CellTemplate>
-                            <MudText Typo="Typo.caption" Class="text-truncate" Style="max-width: 150px;">
-                                @context.Item.EntityId
-                            </MudText>
-                        </CellTemplate>
-                    </PropertyColumn>
-                    <TemplateColumn Title="Action" Sortable="false">
-                        <CellTemplate>
-                            <MudChip T="string" Size="Size.Small" Icon="@GetActionIcon(context.Item.Action)"
-                                     Color="@GetActionColor(context.Item.Action)" Variant="Variant.Filled">
-                                @context.Item.Action
-                            </MudChip>
-                        </CellTemplate>
-                    </TemplateColumn>
-                    <PropertyColumn Property="x => x.PerformedBy" Title="Performed By" Sortable="true">
-                        <CellTemplate>
-                            <MudText Typo="Typo.body2">
-                                @(string.IsNullOrEmpty(context.Item.PerformedBy) ? "—" : context.Item.PerformedBy)
-                            </MudText>
-                        </CellTemplate>
-                    </PropertyColumn>
-                    <TemplateColumn Title="Actions" Sortable="false">
-                        <CellTemplate>
-                            <MudButton Variant="Variant.Text" Size="Size.Small" Color="Color.Primary"
-                                       OnClick="@(() => ViewDetails(context.Item.Id))">
-                                View
-                            </MudButton>
-                        </CellTemplate>
-                    </TemplateColumn>
-                </Columns>
-            </MudDataGrid>
-        }
-    </MudPaper>
-</MudContainer>
+    @if (isLoading)
+    {
+        <div class="placeholder-glow">
+            <div class="placeholder col-12 mb-2" style="height: 40px;"></div>
+            <div class="placeholder col-12 mb-2" style="height: 40px;"></div>
+            <div class="placeholder col-12" style="height: 40px;"></div>
+        </div>
+    }
+    else if (auditLogs == null || auditLogs.Count == 0)
+    {
+        <div class="alert alert-info" role="alert">
+            <strong>No audit logs found.</strong>
+        </div>
+    }
+    else
+    {
+        <AuditLogsTable AuditLogs="auditLogs" OnViewDetails="ViewDetails" />
+    }
+</div>
 
 @code {
     private List<AuditLogDto> auditLogs = new();
@@ -93,16 +60,16 @@
 
             if (response.IsSuccess && response.Result != null)
             {
-                auditLogs = response.Result;
+                auditLogs = response.Result.OrderByDescending(x => x.Timestamp).ToList();
             }
             else
             {
-                Snackbar.Add(response.Message ?? "Failed to load audit logs", Severity.Error);
+                auditLogs = new();
             }
         }
-        catch (Exception ex)
+        catch
         {
-            Snackbar.Add($"Error loading audit logs: {ex.Message}", Severity.Error);
+            auditLogs = new();
         }
         finally
         {
@@ -114,22 +81,4 @@
     {
         Navigation.NavigateTo($"/auditlogs/{id}");
     }
-
-    private string GetActionIcon(string action) =>
-        action switch
-        {
-            "Create" => Icons.Material.Filled.Add,
-            "Update" => Icons.Material.Filled.Edit,
-            "Delete" => Icons.Material.Filled.Delete,
-            _ => Icons.Material.Filled.Info
-        };
-
-    private Color GetActionColor(string action) =>
-        action switch
-        {
-            "Create" => Color.Success,
-            "Update" => Color.Warning,
-            "Delete" => Color.Error,
-            _ => Color.Default
-        };
 }

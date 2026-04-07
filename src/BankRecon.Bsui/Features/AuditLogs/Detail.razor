@@ -1,90 +1,120 @@
-@page "/auditlogs/{LogIdParam}"
+@page "/audit-logs/{LogIdParam}"
 @using System.Text.Json
 @using BankRecon.Bsui.Client.Features.Interfaces
 @using BankRecon.Shared.Features.AuditLogs.Dtos
-@using Microsoft.AspNetCore.Components.Web
-@using MudBlazor
-@inject ISnackbar Snackbar
+@inject IAuditLogService AuditLogService
 @inject NavigationManager Navigation
 
 <PageTitle>Audit Log Detail</PageTitle>
 
-<MudContainer MaxWidth="MaxWidth.Large" Class="mt-6">
-    <MudButton Variant="Variant.Text" Color="Color.Primary" OnClick="@(() => Navigation.NavigateTo("/auditlogs"))" Class="mb-4">
-        <MudIcon Icon="@Icons.Material.Filled.ArrowBack" Class="mr-2"/>
-        Back to Logs
-    </MudButton>
+<div class="container mt-4">
+    <div class="row mb-4">
+        <div class="col-12">
+            <button class="btn btn-link" @onclick="GoBack">
+                ← Back to Logs
+            </button>
+        </div>
+    </div>
 
     @if (isLoading)
     {
-        <MudProgressLinear Indeterminate="true" Class="mb-3"/>
-        <MudSkeleton SkeletonType="SkeletonType.Rectangle" Height="600px"/>
+        <div class="placeholder-glow">
+            <div class="placeholder col-12 mb-3" style="height: 200px;"></div>
+            <div class="placeholder col-12" style="height: 300px;"></div>
+        </div>
     }
     else if (auditLog == null)
     {
-        <MudAlert Severity="Severity.Error">Audit log not found.</MudAlert>
+        <div class="alert alert-danger" role="alert">
+            <strong>Error:</strong> Audit log not found.
+        </div>
     }
     else
     {
-        <MudGrid>
-            <MudItem xs="12" sm="6">
-                <MudPaper Class="p-4 mb-4">
-                    <MudText Typo="Typo.h5" Class="mb-4">Audit Log Information</MudText>
+        <div class="row">
+            <div class="col-md-6">
+                <div class="card mb-4">
+                    <div class="card-header bg-light">
+                        <h5 class="card-title mb-0">Audit Log Information</h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="mb-3">
+                            <label class="form-label fw-bold">Timestamp</label>
+                            <div class="form-control" readonly>@auditLog.Timestamp.ToString("g")</div>
+                        </div>
 
-                    <MudField Label="Timestamp" Variant="Variant.Outlined" ReadOnly="true" Class="mb-3">
-                        <MudText>@auditLog.Timestamp.ToString("g")</MudText>
-                    </MudField>
+                        <div class="mb-3">
+                            <label class="form-label fw-bold">Entity</label>
+                            <div class="form-control" readonly>@auditLog.EntityName</div>
+                        </div>
 
-                    <MudField Label="Entity" Variant="Variant.Outlined" ReadOnly="true" Class="mb-3">
-                        <MudText>@auditLog.EntityName</MudText>
-                    </MudField>
+                        <div class="mb-3">
+                            <label class="form-label fw-bold">Entity ID</label>
+                            <code class="form-control" style="word-break: break-all;">@auditLog.EntityId</code>
+                        </div>
 
-                    <MudField Label="Entity ID" Variant="Variant.Outlined" ReadOnly="true" Class="mb-3">
-                        <MudText Typo="Typo.caption" Class="text-break">@auditLog.EntityId</MudText>
-                    </MudField>
+                        <div class="mb-3">
+                            <label class="form-label fw-bold">Action</label>
+                            <div>
+                                <span class="badge @GetActionBadgeClass(auditLog.Action)">
+                                    @auditLog.Action
+                                </span>
+                            </div>
+                        </div>
 
-                    <MudField Label="Action" Variant="Variant.Outlined" ReadOnly="true" Class="mb-3">
-                        <MudChip T="string" Size="Size.Small" Icon="@GetActionIcon(auditLog.Action)"
-                                 Color="@GetActionColor(auditLog.Action)" Variant="Variant.Filled">
-                            @auditLog.Action
-                        </MudChip>
-                    </MudField>
+                        <div class="mb-3">
+                            <label class="form-label fw-bold">Performed By</label>
+                            <div class="form-control" readonly>
+                                @if (string.IsNullOrEmpty(auditLog.PerformedBy))
+                                {
+                                    <span class="text-muted">—</span>
+                                }
+                                else
+                                {
+                                    @auditLog.PerformedBy
+                                }
+                            </div>
+                        </div>
 
-                    <MudField Label="Performed By" Variant="Variant.Outlined" ReadOnly="true" Class="mb-3">
-                        <MudText>@(string.IsNullOrEmpty(auditLog.PerformedBy) ? "—" : auditLog.PerformedBy)</MudText>
-                    </MudField>
+                        @if (!string.IsNullOrEmpty(auditLog.AffectedColumns))
+                        {
+                            <div class="mb-3">
+                                <label class="form-label fw-bold">Affected Columns</label>
+                                <div class="form-control" style="white-space: pre-wrap; word-break: break-word;" readonly>@auditLog.AffectedColumns</div>
+                            </div>
+                        }
+                    </div>
+                </div>
+            </div>
 
-                    @if (!string.IsNullOrEmpty(auditLog.AffectedColumns))
-                    {
-                        <MudField Label="Affected Columns" Variant="Variant.Outlined" ReadOnly="true" Class="mb-3">
-                            <MudText Typo="Typo.caption">@auditLog.AffectedColumns</MudText>
-                        </MudField>
-                    }
-                </MudPaper>
-            </MudItem>
-
-            <MudItem xs="12" sm="6">
+            <div class="col-md-6">
                 @if (!string.IsNullOrEmpty(auditLog.OldValues))
                 {
-                    <MudPaper Class="p-4 mb-4">
-                        <MudText Typo="Typo.h5" Class="mb-3">Old Values</MudText>
-                        <MudTextField T="string" Value="@FormatJson(auditLog.OldValues)" ReadOnly="true"
-                                      Multiline="true" Rows="10" Variant="Variant.Outlined" FullWidth="true"/>
-                    </MudPaper>
+                    <div class="card mb-4">
+                        <div class="card-header bg-light">
+                            <h5 class="card-title mb-0">Old Values</h5>
+                        </div>
+                        <div class="card-body">
+                            <textarea class="form-control" style="font-family: monospace; height: 250px;" readonly>@FormatJson(auditLog.OldValues)</textarea>
+                        </div>
+                    </div>
                 }
 
                 @if (!string.IsNullOrEmpty(auditLog.NewValues))
                 {
-                    <MudPaper Class="p-4">
-                        <MudText Typo="Typo.h5" Class="mb-3">New Values</MudText>
-                        <MudTextField T="string" Value="@FormatJson(auditLog.NewValues)" ReadOnly="true"
-                                      Multiline="true" Rows="10" Variant="Variant.Outlined" FullWidth="true"/>
-                    </MudPaper>
+                    <div class="card">
+                        <div class="card-header bg-light">
+                            <h5 class="card-title mb-0">New Values</h5>
+                        </div>
+                        <div class="card-body">
+                            <textarea class="form-control" style="font-family: monospace; height: 250px;" readonly>@FormatJson(auditLog.NewValues)</textarea>
+                        </div>
+                    </div>
                 }
-            </MudItem>
-        </MudGrid>
+            </div>
+        </div>
     }
-</MudContainer>
+</div>
 
 @code {
     [Parameter]
@@ -97,7 +127,6 @@
     {
         if (string.IsNullOrEmpty(LogIdParam) || !Guid.TryParse(LogIdParam, out var logId))
         {
-            Snackbar.Add("Invalid audit log ID", Severity.Error);
             Navigation.NavigateTo("/auditlogs");
             return;
         }
@@ -116,20 +145,16 @@
             if (response.IsSuccess && response.Result != null)
             {
                 auditLog = response.Result.FirstOrDefault(x => x.Id == logId);
-
-                if (auditLog == null)
-                {
-                    Snackbar.Add("Audit log not found", Severity.Error);
-                }
             }
-            else
+
+            if (auditLog == null)
             {
-                Snackbar.Add(response.Message ?? "Failed to load audit logs", Severity.Error);
+                Navigation.NavigateTo("/auditlogs");
             }
         }
-        catch (Exception ex)
+        catch
         {
-            Snackbar.Add($"Error loading audit log: {ex.Message}", Severity.Error);
+            Navigation.NavigateTo("/auditlogs");
         }
         finally
         {
@@ -155,21 +180,17 @@
         }
     }
 
-    private string GetActionIcon(string action) =>
+    private string GetActionBadgeClass(string action) =>
         action switch
         {
-            "Create" => Icons.Material.Filled.Add,
-            "Update" => Icons.Material.Filled.Edit,
-            "Delete" => Icons.Material.Filled.Delete,
-            _ => Icons.Material.Filled.Info
+            "Create" => "bg-success",
+            "Update" => "bg-warning text-dark",
+            "Delete" => "bg-danger",
+            _ => "bg-secondary"
         };
 
-    private Color GetActionColor(string action) =>
-        action switch
-        {
-            "Create" => Color.Success,
-            "Update" => Color.Warning,
-            "Delete" => Color.Error,
-            _ => Color.Default
-        };
+    private void GoBack()
+    {
+        Navigation.NavigateTo("/auditlogs");
+    }
 }

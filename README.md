@@ -18,6 +18,8 @@ BankRecon is designed to streamline bank transaction reconciliation with a focus
 - ✅ **Exception Handling** — Centralized middleware for error responses
 - ✅ **Blazor WebAssembly** — Real-time UI with offline capabilities
 - ✅ **API Documentation** — Swagger/OpenAPI integration
+- ✅ **Bootstrap 5 UI** — Lightweight, responsive components without external UI libraries
+- ✅ **Reusable Components** — Generic DataTable and form components for rapid feature development
 
 ## 🏗️ Architecture
 
@@ -25,7 +27,7 @@ The project follows **Clean Architecture** principles with clear separation of c
 
 ```mermaid
 graph TD;
-    A["BankRecon.Bsui\nBlazor WebAssembly - MudBlazor"] --> B["BankRecon.Bsui.Client\nTyped HTTP Client Services"];
+    A["BankRecon.Bsui\nBlazor WebAssembly - Bootstrap 5"] --> B["BankRecon.Bsui.Client\nTyped HTTP Client Services"];
     B --> C["BankRecon.WebApi\nASP.NET Core REST API"];
     C --> D["BankRecon.Application\nMediatR - CQRS Pattern"];
     D --> E["BankRecon.Domain\nDDD - Core Entities"];
@@ -39,7 +41,7 @@ graph TD;
 
 | Layer | Project | Responsibility |
 |-------|---------|----------------|
-| **UI** | `BankRecon.Bsui` | ✅ Blazor WebAssembly frontend with MudBlazor components |
+| **UI** | `BankRecon.Bsui` | ✅ Blazor WebAssembly frontend with Bootstrap 5 components |
 | **Client** | `BankRecon.Bsui.Client` | ✅ Typed HTTP client services, API communication layer |
 | **API** | `BankRecon.WebApi` | ✅ REST endpoints, middleware, configuration |
 | **Application** | `BankRecon.Application` | ✅ MediatR CQRS handlers, validators, DTOs, AutoMapper |
@@ -51,7 +53,7 @@ graph TD;
 
 | Layer | Technology |
 |---|---|
-| **Frontend** | Blazor WebAssembly, MudBlazor 7.x |
+| **Frontend** | Blazor WebAssembly, Bootstrap 5, Bootstrap Icons |
 | **Client** | Typed HttpClient, Microsoft.Extensions.Http |
 | **API** | ASP.NET Core 8 Web API, Swagger/OpenAPI |
 | **Application** | MediatR 12.x (CQRS), AutoMapper 16.x, FluentValidation 10.x |
@@ -63,55 +65,55 @@ graph TD;
 
 ```
 src/
-├── BankRecon.Domain/                  # Domain layer (entities, interfaces)
-│   ├── Common/
-│   │   ├── BaseEntity.cs              # Base entity with Id, audit fields
-│   │   ├── SoftDeletableEntity.cs     # Soft delete support
-│   │   └── Interfaces/                # IHasKey, ICreatable, IUpdatable, ISoftDeletable
-│   ├── Entities/
-│   │   └── AuditLog.cs                # Audit log entity
-│
-├── BankRecon.Application/             # Application layer (CQRS, business logic)
-│   ├── Common/
-│   │   ├── Behaviors/                 # MediatR pipeline behaviors
-│   │   │   ├── LoggingBehavior.cs     # Request/response logging
-│   │   │   └── ValidationBehavior.cs  # Automatic FluentValidation
-│   │   ├── Exceptions/                # Domain exceptions
+├── BankRecon.Domain/                      # Domain layer (entities, interfaces)
+│   ├── Common/                            
+│   │   ├── BaseEntity.cs                  # Base entity with Id, audit fields
+│   │   ├── SoftDeletableEntity.cs         # Soft delete support
+│   │   └── Interfaces/                    # IHasKey, ICreatable, IUpdatable, ISoftDeletable
+│   ├── Entities/                          
+│   │   └── AuditLog.cs                    # Audit log entity
+│                                          
+├── BankRecon.Application/                 # Application layer (CQRS, business logic)
+│   ├── Common/                            
+│   │   ├── Behaviors/                     # MediatR pipeline behaviors
+│   │   │   ├── LoggingBehavior.cs         # Request/response logging
+│   │   │   └── ValidationBehavior.cs      # Automatic FluentValidation
+│   │   ├── Exceptions/                    # Domain exceptions
 │   │   │   ├── EntityNotFoundException.cs
 │   │   │   └── ValidationException.cs
-│   │   ├── Interfaces/                # IRepository<T>
-│   │   └── Mappings/                  # AutoMapper profiles (IMapFrom<T>)
-│   ├── Features/                      # Feature-based CQRS organization
+│   │   ├── Interfaces/                    # IRepository<T>
+│   │   └── Mappings/                      # AutoMapper profiles (IMapFrom<T>)
+│   ├── Features/                          # Feature-based CQRS organization
 │   │   └── ExampleSoftDeletableEntities/
-│   │       ├── Commands/              # Create, Update, Delete
-│   │       ├── Queries/               # GetAll, GetById
-│   │       └── Validators/            # FluentValidation validators
-│   └── DependencyInjection.cs         # Application service registration
+│   │       ├── Commands/                  # Create, Update, Delete
+│   │       ├── Queries/                   # GetAll, GetById
+│   │       └── Validators/                # FluentValidation validators
+│   └── DependencyInjection.cs             # Application service registration
 │
-├── BankRecon.Infrastructure/          # Infrastructure layer (data access)
-│   ├── Data/
-│   │   └── BankReconDbContext.cs      # EF Core DbContext with audit tracking
+├── BankRecon.Infrastructure/              # Infrastructure layer (data access)
+│   ├── Data/                              
+│   │   └── BankReconDbContext.cs          # EF Core DbContext with audit tracking
 │   ├── Repositories/
-│   │   └── Repository.cs              # Generic repository (soft delete aware)
+│   │   └── Repository.cs                  # Generic repository (soft delete aware)
 │   ├── Configurations/
 │   │   ├── BaseEntityConfiguration.cs
 │   │   ├── SoftDeletableEntityConfiguration.cs
 │   │   └── AuditLogConfiguration.cs
-│   └── DependencyInjection.cs         # Infrastructure service registration
+│   └── DependencyInjection.cs             # Infrastructure service registration
 │
-├── BankRecon.Shared/                  # Shared models (used by API + Blazor)
+├── BankRecon.Shared/                      # Shared models (used by API + Blazor)
 │   ├── Common/
 │   │   ├── Responses/
-│   │   │   └── ApiResponse.cs         # Standardized API response wrapper
+│   │   │   └── ApiResponse.cs             # Standardized API response wrapper
 │   │   ├── Models/
-│   │   │   └── PaginatedList.cs       # Pagination support
+│   │   │   └── PaginatedList.cs           # Pagination support
 │   │   └── Mappings/
 │   │       └── IMapFrom.cs
 │   └── Features/
 │       └── ExampleSoftDeletableEntities/
 │           └── Dtos/
 │
-├── BankRecon.WebApi/                  # Web API layer (controllers, middleware)
+├── BankRecon.WebApi/                      # Web API layer (controllers, middleware)
 │   ├── Controllers/
 │   ├── Middleware/
 │   ├── Properties/
@@ -119,30 +121,44 @@ src/
 │   ├── appsettings.json
 │   └── appsettings.Development.json
 │
-├── BankRecon.Bsui.Client/             # Blazor client layer (HTTP services)
+├── BankRecon.Bsui.Client/                 # Blazor client layer (HTTP services)
 │   ├── Common/
 │   │   ├── Interfaces/
-│   │   │   └── IApiClient.cs          # Base HTTP client contract
+│   │   │   └── IApiClient.cs              # Base HTTP client contract
 │   │   └── Services/
-│   │       └── ApiClient.cs           # Base HTTP client implementation
+│   │       └── ApiClient.cs               # Base HTTP client implementation
 │   ├── Features/
 │   │   ├── Interfaces/
-│   │   │   └── IAuditLogService.cs    # Feature-specific interface
+│   │   │   └── IAuditLogService.cs        # Feature-specific interface
 │   │   └── Services/
-│   │       └── AuditLogService.cs     # Feature-specific implementation
-│   └── DependencyInjection.cs         # Bsui.Client service registration
+│   │       └── AuditLogService.cs         # Feature-specific implementation
+│   └── DependencyInjection.cs             # Bsui.Client service registration
 │
-└── BankRecon.Bsui/                    # Blazor WebAssembly UI
+└── BankRecon.Bsui/                        # Blazor WebAssembly UI
+    ├── Common/
+    │   ├── Components/
+    │   │   └── DataTable/
+    │   │       ├── DataTable.razor        # Generic reusable data table component
+    │   │       └── DataTableColumn.cs     # Column definition class
+    │   └── Layout/
+    │       ├── MainLayout.razor           # Main application layout
+    │       ├── MainLayout.razor.css
+    │       ├── NavMenu.razor              # Navigation menu with Bootstrap Icons
+    │       └── NavMenu.razor.css
     ├── Features/
-    │   ├── Home.razor                 # Home / dashboard page
+    │   ├── Home.razor                     # Home / dashboard page
     │   └── AuditLogs/
-    │       ├── _Imports.razor          # Feature-scoped service injection
-    │       ├── Index.razor             # Audit log list with MudDataGrid
-    │       └── Detail.razor            # Audit log detail view
-    ├── Shared/
-    │   └── MainLayout.razor
+    │       ├── Index.razor                # Audit log list with DataTable
+    │       ├── Detail.razor               # Audit log detail view
+    │       └── Components/
+    │           └── AuditLogsTable.razor   # Feature-specific table wrapper
+    ├── Pages/
+    │   ├── Weather.razor                  # Demo page using DataTable
+    │   └── ...
     ├── wwwroot/
-    │   └── index.html
+    │   ├── bootstrap/
+    │   │   └── bootstrap.min.css
+    │   └── app.css
     ├── App.razor
     ├── Routes.razor
     ├── _Imports.razor
@@ -171,10 +187,12 @@ src/
 
 ### Blazor WebAssembly UI ✅
 
-- **Audit Log Viewer** - List page with `MudDataGrid`, action color chips, loading skeleton
-- **Audit Log Detail** - Detail page with formatted JSON old/new values display
-- **Home Page** - Dashboard landing page
-- **MudBlazor Integration** - Theme provider, dialog provider, snackbar notifications
+- **Bootstrap 5 Components** — Lightweight, responsive UI without external libraries
+- **Reusable DataTable Component** — Generic, sortable table for any data type
+- **Audit Log Viewer** — List page with sorting, action badges, loading skeleton
+- **Audit Log Detail** — Detail page with formatted JSON old/new values display
+- **Home Page** — Dashboard landing page
+- **Navigation Menu** — Bootstrap Icons with proper alignment
 
 ### Audit & Soft Delete System ✅
 
@@ -330,23 +348,37 @@ await repository.RestoreAsync(id);
 - ✅ Bsui.Client Layer (typed HTTP client services, API communication)
 - ✅ Base API client (IApiClient, ApiClient)
 - ✅ Feature-specific services (IAuditLogService, AuditLogService)
-- ✅ Blazor WebAssembly project (MudBlazor integration, DI setup)
+- ✅ Blazor WebAssembly project (Bootstrap 5 integration, DI setup)
 
 ### ✅ Phase 4: Bsui Foundation & Audit Log UI (COMPLETED)
 
 - ✅ Bsui Foundation (index.html, App.razor, MainLayout.razor, Program.cs, _Imports.razor)
 - ✅ Home page (dashboard landing)
-- ✅ Audit Log list page (MudDataGrid, action color chips, loading skeleton)
-- ✅ Audit Log detail page (formatted JSON old/new values, MudField display)
-- ✅ Feature-scoped `_Imports.razor` with service injection
+- ✅ Audit Log list page (DataTable, action badges, loading skeleton)
+- ✅ Audit Log detail page (formatted JSON old/new values)
+- ✅ Navigation menu with Bootstrap Icons and proper alignment
 
-### 📋 Phase 5: Remaining UI Features (IN PROGRESS)
+### 🚀 Phase 5: Reusable Components & Remaining UI Features (IN PROGRESS)
 
-- [ ] Navigation menu with routing (`NavMenu.razor`)
-- [ ] Drawer layout in `MainLayout.razor`
-- [ ] Entity management pages (list, detail, create/edit forms)
-- [ ] Client-side form validation
-- [ ] Global state management
+#### Reusable Components Library ✅ (Started)
+- ✅ **Generic DataTable Component** — Dynamic, sortable table for any data type
+  - Support for dynamic columns and data binding
+  - Built-in action buttons customization
+  - Responsive design
+  - Sorting capabilities
+- [ ] **Generic Form Component** — Reusable form with validation
+- [ ] **Modal Dialog Component** — For confirmations and dialogs
+- [ ] **Notification Components** — Toast/alert system
+
+#### Entity Management Pages
+- [ ] Entity list pages with DataTable component
+- [ ] Entity detail pages
+- [ ] Create/Edit form pages with validation
+- [ ] Delete confirmation dialogs
+
+#### Advanced Features
+- [ ] Client-side form validation with visual feedback
+- [ ] Global state management (if needed)
 - [ ] Error handling UI components
 - [ ] Authentication and Authorization (JWT)
 - [ ] Role-based access control (RBAC)
@@ -356,11 +388,9 @@ await repository.RestoreAsync(id);
 - [ ] PerformedBy user identity population
 - [ ] Unit & integration tests
 
-For detailed implementation checklist, see [CONTRIBUTING.md](CONTRIBUTING.md).
-
 ---
 
-**Status:** 🚧 Under Development | **Current Phase:** Phase 5 — Remaining UI Features In Progress | **Last Updated:** April 2026
+**Status:** 🚧 Under Development | **Current Phase:** Phase 5 — Reusable Components & Remaining UI Features In Progress | **Last Updated:** April 2026
 
 ## 🔐 Code Standards
 
@@ -380,7 +410,8 @@ This project enforces strict code standards via `.editorconfig`:
 - [MediatR - CQRS Pattern](https://github.com/jbogard/MediatR)
 - [Entity Framework Core Docs](https://docs.microsoft.com/en-us/ef/core/)
 - [Blazor Documentation](https://docs.microsoft.com/en-us/aspnet/core/blazor/)
-- [MudBlazor Components](https://mudblazor.com/)
+- [Bootstrap 5](https://getbootstrap.com/)
+- [Bootstrap Icons](https://icons.getbootstrap.com/)
 
 ## 🧪 Testing
 
@@ -534,4 +565,4 @@ For issues, questions, or suggestions, please open an [issue](https://github.com
 
 ---
 
-**Status:** 🚧 Under Development | **Current Phase:** Phase 5 — Remaining UI Features In Progress | **Last Updated:** April 2026
+**Status:** 🚧 Under Development | **Current Phase:** Phase 5 — Reusable Components & Remaining UI Features In Progress | **Last Updated:** April 2026

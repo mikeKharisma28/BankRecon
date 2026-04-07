@@ -45,356 +45,358 @@ Thank you for your interest in contributing to BankRecon! This document outlines
 - [x] Swagger/OpenAPI configuration
 - [x] CORS setup for Blazor WebAssembly (correct policy name + matching ports)
 - [x] Exception handling middleware (`ExceptionHandlingMiddleware`)
-- [x] Correct middleware ordering (`UseCors` before `UseAuthorization`)
+- [x] Proper error response formatting
 
-#### Controllers
-- [x] Audit Logs controller (`AuditLogsController`)
-- [x] REST endpoint implementations for audit querying
-- [x] Proper HTTP status codes
-- [x] XML documentation for Swagger
+#### Controllers & Endpoints
+- [x] Base controller pattern
+- [x] AuditLog endpoints (`GET /api/auditlogs`, `GET /api/auditlogs/{id}`)
+- [x] Proper HTTP status codes and response wrapping
+- [x] Query support for filtering/pagination
 
-#### Configuration
-- [x] `appsettings.json` (base configuration)
-- [x] `appsettings.Development.json` (development overrides)
-- [x] Connection string setup
-- [x] Logging configuration
+#### Swagger Documentation
+- [x] API documentation
+- [x] Request/response examples
+- [x] Authentication scheme definition (placeholder)
 
 ### ✅ Phase 3: Blazor WebAssembly Client (COMPLETED)
 
-#### Bsui.Client Layer (API Client Infrastructure)
-- [x] Project scaffolded (`BankRecon.Bsui.Client`)
-- [x] Base API client interface (`IApiClient`) in `Common/Interfaces/`
-- [x] Base API client implementation (`ApiClient`) in `Common/Services/`
-- [x] Typed HttpClient with `IHttpClientFactory` via `AddHttpClient<IApiClient, ApiClient>()`
-- [x] Feature service interfaces separated into `Features/Interfaces/`
-  - [x] `IAuditLogService`
-- [x] Feature service implementations separated into `Features/Services/`
-  - [x] `AuditLogService`
-- [x] DependencyInjection extension (`AddBsuiClient(string baseAddress)`)
+#### Bsui.Client Layer
+- [x] Base API client (`IApiClient`, `ApiClient`) with typed HTTP operations
+- [x] Feature-specific services (`IAuditLogService`, `AuditLogService`)
+- [x] Automatic response deserialization and error handling
+- [x] Dependency injection setup (`AddBsuiClient()`)
+
+#### HTTP Client Configuration
+- [x] Typed `IHttpClientFactory` usage
+- [x] Base address configuration
+- [x] Authorization header support (ready for JWT)
 
 ### ✅ Phase 4: Bsui Foundation & Audit Log UI (COMPLETED)
 
 #### Bsui Foundation
-- [x] `wwwroot/index.html` — correct WASM host entry point with MudBlazor assets and loading indicator
-- [x] `App.razor` — clean Router component (separated from HTML host page)
-- [x] `MainLayout.razor` — MudBlazor layout (`MudThemeProvider`, `MudDialogProvider`, `MudSnackbarProvider`)
-- [x] `Program.cs` — environment-aware API base URL (dev: hardcoded WebApi port, prod: `BaseAddress`)
-- [x] `_Imports.razor` — global usings for MudBlazor, Shared, and Bsui.Client namespaces
+- [x] `index.html` with Bootstrap 5 CSS and Bootstrap Icons
+- [x] `App.razor` with router configuration
+- [x] `MainLayout.razor` with navbar and sidebar
+- [x] `NavMenu.razor` with navigation links and proper icon alignment
+- [x] `Program.cs` with service registration
+- [x] `_Imports.razor` with global using statements
 
-#### Audit Log UI Pages
-- [x] `Features/AuditLogs/_Imports.razor` — feature-scoped `IAuditLogService` injection
-- [x] `Features/AuditLogs/Index.razor` — list page with `MudDataGrid`, action color chips, loading skeleton, snackbar error handling
-- [x] `Features/AuditLogs/Detail.razor` — detail page with formatted JSON old/new values, `MudField` display
+#### Audit Log Features
+- [x] Audit Log list page (`Index.razor`) with refresh capability
+- [x] Audit Log detail page (`Detail.razor`) with JSON formatting
+- [x] Audit Log table component (`AuditLogsTable.razor`) as feature-specific wrapper
 
-#### Home Page
-- [x] `Features/Home.razor` — dashboard landing page (`@page "/"`)
+### 🚀 Phase 5: Reusable Components & Remaining UI Features (IN PROGRESS)
 
-### 📍 Phase 5: Remaining UI Features (IN PROGRESS)
+#### Reusable Components Library ✅ (Started)
+- [x] **Generic DataTable Component** — Dynamic, sortable table for any data type
+  - [x] Support for dynamic columns and data binding via `DataTableColumn<T>`
+  - [x] Built-in action buttons customization with `RenderFragment<TItem>`
+  - [x] Responsive design with Bootstrap 5 table classes
+  - [x] Sorting capabilities with sort direction tracking
+  - [x] Empty state handling
+  - [x] Live usage in `Weather.razor` demo page
+- [ ] **Generic Form Component** — Reusable form with validation
+- [ ] **Modal Dialog Component** — For confirmations and dialogs
+- [ ] **Notification Components** — Toast/alert system
 
-#### Navigation & Layout (NEXT)
-- [ ] `NavMenu.razor` — Navigation menu component with MudNavMenu
-- [ ] Drawer layout integration in `MainLayout.razor`
-- [ ] Responsive navigation for mobile/desktop
-- [ ] Active route highlighting
+#### Entity Management Pages
+- [ ] Entity list pages with DataTable component
+- [ ] Entity detail pages
+- [ ] Create/Edit form pages with validation
+- [ ] Delete confirmation dialogs
 
-#### Entity Management Pages (UPCOMING)
-- [ ] Generic list page template with sorting, filtering, pagination
-- [ ] Generic detail view with formatted display
-- [ ] Create/Edit form pages with MudForm validation
-- [ ] Client-side form validation with error messages
-- [ ] Success/error snackbar notifications
-
-#### Global State Management (PLANNED)
-- [ ] State container service for shared component state
-- [ ] Event notification system for cross-component communication
-- [ ] Cascading parameters for component hierarchy
-
-#### Advanced UI Features (PLANNED)
-- [ ] Error handling UI components (error boundaries, custom error pages)
-- [ ] Loading indicators and skeleton screens
-- [ ] Modal dialogs for confirmations
-- [ ] Bulk operations UI
-- [ ] Export/Import functionality
-
-#### Advanced Backend Features (PLANNED)
+#### Advanced Features
+- [ ] Client-side form validation with visual feedback
+- [ ] Global state management (if needed)
+- [ ] Error handling UI components
 - [ ] Authentication and Authorization (JWT)
 - [ ] Role-based access control (RBAC)
 - [ ] Advanced search & filtering
+- [ ] Bulk operations
+- [ ] Export/Import functionality
 - [ ] PerformedBy user identity population
 - [ ] Unit & integration tests
-- [ ] Performance optimization
 
----
+## 🏗️ Project Structure
 
-## 🏗️ Architecture Guidelines
-
-### Clean Architecture Principles
+### Folder Organization
 
 ```
-Dependency Direction: Outer layers → Inner layers
-Domain layer has NO external dependencies
-Each layer has single responsibility
+src/
+├── BankRecon.Domain/                     # Domain layer
+├── BankRecon.Application/                # Application layer
+├── BankRecon.Infrastructure/             # Infrastructure layer
+├── BankRecon.Shared/                     # Shared DTOs and models
+├── BankRecon.WebApi/                     # Web API layer
+├── BankRecon.Bsui.Client/                # Blazor client services
+└── BankRecon.Bsui/                       # Blazor WebAssembly UI
+    ├── Common/
+    │   ├── Components/                   # Reusable components (DataTable, Form, Modal, etc.)
+    │   │   └── DataTable/             
+    │   │       ├── DataTable.razor
+    │   │       └── DataTableColumn.cs
+    │   └── Layout/                       # Layout components
+    └── Features/
+        ├── Home/
+        ├── AuditLogs/
+        │   ├── Index.razor
+        │   ├── Detail.razor
+        │   └── Components/
+        │       └── AuditLogsTable.razor  # Feature-specific wrapper
+        └── [Other Features]/
 ```
 
-### Layer Responsibilities
+### Component Guidelines
 
-| Layer | Responsibility | Can Reference |
-|-------|-----------------|----------------|
-| **Domain** | Business logic, entities | Nothing (pure) |
-| **Application** | Use cases, orchestration | Domain, Shared |
-| **Infrastructure** | Data access, external services | Application, Domain |
-| **Shared** | DTOs, common models | Domain |
-| **WebApi** | HTTP handling, routing | Application, Infrastructure, Shared |
-| **Bsui.Client** | HTTP client services, API communication | Shared |
-| **Bsui** | UI rendering, user interaction | Bsui.Client, Shared |
+#### Common Components (`Shared/Components/Common/`)
 
-### CQRS Pattern
+Reusable components must follow these guidelines:
 
-- **Commands** — State-changing operations (Create, Update, Delete)
-- **Queries** — Read-only operations (GetAll, GetById)
-- **Handlers** — Business logic execution
-- **Validators** — Input validation before handler execution
+1. **Generic Type Parameters** — Use `<TItem>` for data binding
+2. **Flexible Columns** — Support dynamic column definitions via `DataTableColumn<TItem>`
+3. **Action Callbacks** — Expose `RenderFragment<TItem>` for custom actions
+4. **Bootstrap 5 Only** — No external UI libraries (MudBlazor, etc.)
+5. **Naming Convention** — PascalCase for component names (e.g., `DataTable.razor`)
+6. **Parameter Documentation** — Add `/// <summary>` comments for parameters
 
----
+#### Example: Using DataTable Component
 
-## 🛠️ Development Guidelines
+```razor
+@page "/myentities"
+@using BankRecon.Bsui.Shared.Components.Common
+@using MyNamespace.Features.MyEntities
 
-### Code Style & Formatting
+<h2>My Entities</h2>
 
-Follow the `.editorconfig` file in the root directory. Key rules:
+<DataTable TItem="MyEntityDto" 
+           Items="@entities" 
+           Columns="@columns" 
+           Actions="@RenderActions" 
+           OnSortChange="@HandleSort" />
 
-```
-• Indentation: 4 spaces (no tabs)
-• Line endings: CRLF
-• Naming: PascalCase for classes/methods, camelCase for variables
-• File-scoped namespaces: Required
-• Braces: Allman style (opening brace on new line)
-```
+@code {
+    private List<MyEntityDto> entities = new();
+    private List<DataTableColumn<MyEntityDto>> columns = new();
 
-Run formatting:
-```bash
-dotnet format
-```
+    protected override void OnInitialized()
+    {
+        columns = new()
+        {
+            new()
+            {
+                Header = "ID",
+                PropertyName = "Id",
+                Property = x => x.Id,
+                IsSortable = true
+            },
+            new()
+            {
+                Header = "Name",
+                PropertyName = "Name",
+                Property = x => x.Name,
+                IsSortable = true
+            },
+            new()
+            {
+                Header = "Created",
+                PropertyName = "CreatedAt",
+                Property = x => x.CreatedAt,
+                IsSortable = true,
+                CellTemplate = item => (RenderFragment)(builder =>
+                {
+                    builder.AddContent(0, item.CreatedAt.ToString("g"));
+                })
+            },
+        };
+    }
 
-### Adding New Features
+    private RenderFragment<MyEntityDto> RenderActions => item => (RenderFragment)(builder =>
+    {
+        builder.OpenElement(0, "button");
+        builder.AddAttribute(1, "class", "btn btn-sm btn-outline-primary");
+        builder.AddAttribute(2, "@onclick", EventCallback.Factory.Create(this, () => ViewDetails(item.Id)));
+        builder.AddContent(3, "View");
+        builder.CloseElement();
+    });
 
-1. **Create Domain Entity** (if needed)
-   ```
-   src/BankRecon.Domain/Entities/YourEntity.cs
-   ```
-
-2. **Create DTOs in Shared**
-   ```
-   src/BankRecon.Shared/Features/YourFeature/Dtos/
-   ```
-
-3. **Implement `IMapFrom<T>`** in DTO
-   ```csharp
-   public class YourDto : IMapFrom<YourEntity>
-   {
-       public void Mapping(Profile profile)
-       {
-           profile.CreateMap<YourEntity, YourDto>();
-       }
-   }
-   ```
-
-4. **Create Application Commands/Queries**
-   ```
-   src/BankRecon.Application/Features/YourFeature/
-   ├── Commands/
-   ├── Queries/
-   └── Validators/
-   ```
-
-5. **Create Controller Endpoint**
-   ```
-   src/BankRecon.WebApi/Controllers/YourController.cs
-   ```
-
-6. **Create Client Service Interface**
-   ```
-   src/BankRecon.Bsui.Client/Features/Interfaces/IYourFeatureService.cs
-   ```
-
-7. **Create Client Service Implementation**
-   ```
-   src/BankRecon.Bsui.Client/Features/Services/YourFeatureService.cs
-   ```
-
-   Register in `src/BankRecon.Bsui.Client/DependencyInjection.cs`:
-   ```csharp
-   services.AddScoped<IYourFeatureService, YourFeatureService>();
-   ```
-
-8. **Create Blazor Pages**
-   ```
-   src/BankRecon.Bsui/Features/YourFeature/
-   ├── _Imports.razor       ← inject IYourFeatureService here
-   ├── Index.razor
-   └── Detail.razor      ← detail page
-   ```
-
-   Add feature-scoped service injection in `_Imports.razor`:
-   ```razor
-   @using BankRecon.Bsui.Client.Features.Interfaces
-   @using BankRecon.Shared.Features.YourFeature.Dtos
-   @inject IYourFeatureService YourFeatureService
-   ```
-
-### Naming Conventions
-
-| Element | Convention | Example |
-|---------|-----------|---------|
-| **Command** | `{Action}{EntityName}Command` | `CreateTransactionCommand` |
-| **Query** | `Get{EntityName}{Criteria}Query` | `GetAllTransactionsQuery` |
-| **Handler** | `{Command/Query}Handler` | `CreateTransactionCommandHandler` |
-| **Validator** | `{Command}Validator` | `CreateTransactionValidator` |
-| **DTO** | `{EntityName}Dto` | `TransactionDto` |
-| **Entity** | `{EntityName}` | `Transaction` |
-| **Repository** | `I{EntityName}Repository` | `ITransactionRepository` |
-| **Service** | `I{FeatureName}Service` | `ITransactionService` |
-
----
-
-## 🌐 Bsui.Client Layer
-
-### Layer Structure
-
-```
-BankRecon.Bsui.Client/
-├── Common/
-│   ├── Interfaces/
-│   │   └── IApiClient.cs                # Base HTTP client contract
-│   └── Services/
-│       └── ApiClient.cs                 # Base HTTP client implementation
-├── Features/
-│   ├── Interfaces/                      # All feature service contracts
-│   │   └── IAuditLogService.cs
-│   └── Services/                        # All feature service implementations
-│       └── AuditLogService.cs
-├── BankRecon.Bsui.Client.csproj
-└── DependencyInjection.cs
+    private void ViewDetails(Guid id) => Navigation.NavigateTo($"/myentities/{id}");
+    
+    private Task HandleSort((string PropertyName, bool IsDescending) sort)
+    {
+        // Implement sorting logic
+        return Task.CompletedTask;
+    }
+}
 ```
 
-> **Note:** Interfaces and implementations are intentionally separated into `Features/Interfaces/` and `Features/Services/` to maintain Clean Architecture separation of concerns.
+#### Creating Feature-Specific Wrappers
 
-### Guidelines for New Services
+For features that need customization, create a wrapper component in `Features/YourFeature/Components/`:
 
-1. Create interface in `Features/Interfaces/I{FeatureName}Service.cs`
-2. Create implementation in `Features/Services/{FeatureName}Service.cs`
-3. Register in `DependencyInjection.cs`
-4. Add `@using BankRecon.Bsui.Client.Features.Interfaces` to feature `_Imports.razor`
+```razor
+@* Features/MyEntities/Components/MyEntitiesTable.razor *@
+@using BankRecon.Shared.Features.MyEntities.Dtos
+@using BankRecon.Bsui.Shared.Components.Common
 
----
+<DataTable TItem="MyEntityDto" Items="@MyEntities" Columns="@columns" Actions="@RenderActions" />
 
-## 🖥️ Bsui Layer
+@code {
+    [Parameter]
+    public List<MyEntityDto> MyEntities { get; set; } = new();
 
-### Key Setup Notes
+    [Parameter]
+    public EventCallback<Guid> OnViewDetails { get; set; }
 
-- **`wwwroot/index.html`** is the WASM host — this is where MudBlazor CSS/JS and `blazor.webassembly.js` are referenced
-- **`App.razor`** is a pure Router component only — no HTML scaffolding
-- **`Program.cs`** uses environment-aware API URL:
-  ```csharp
-  var apiBaseUrl = builder.HostEnvironment.IsDevelopment()
-      ? "https://localhost:{webapi-port}"   // must match WebApi launchSettings.json
-      : builder.HostEnvironment.BaseAddress;
-  ```
-- **`_Imports.razor`** (root) — global usings applied to all pages
-- **`_Imports.razor`** (feature folder) — feature-scoped service injections
+    private List<DataTableColumn<MyEntityDto>> columns = new();
 
-### Feature Folder Structure
+    protected override void OnInitialized()
+    {
+        // Define columns with custom templates, styling, etc.
+        columns = new()
+        {
+            new() { Header = "Name", PropertyName = "Name", Property = x => x.Name },
+            // ... more columns
+        };
+    }
 
-```
-BankRecon.Bsui/
-├── Features/
-│   ├── Home.razor
-│   └── YourFeature/
-│       ├── _Imports.razor    ← @inject IYourFeatureService, @using Dtos
-│       ├── Index.razor       ← list page
-│       └── Detail.razor      ← detail page
-├── Shared/
-│   └── MainLayout.razor
-├── wwwroot/
-│   └── index.html
-├── App.razor
-├── _Imports.razor
-└── Program.cs
+    private RenderFragment<MyEntityDto> RenderActions => item => (RenderFragment)(builder =>
+    {
+        // Custom action buttons
+    });
+}
 ```
 
-### MudBlazor Component Notes (v7.12.0)
+## 🔧 Coding Standards
 
-| Issue | Correct Usage |
-|-------|--------------|
-| `MudChip` requires generic type | Always use `<MudChip T="string">` |
-| Column in `MudDataGrid` | Use `<PropertyColumn>` for bound props, `<TemplateColumn>` for custom content |
-| `SkeletonType` | Only `Text`, `Circle`, `Rectangle` are valid |
+### Blazor Components
 
----
+- **File scoped namespaces** — Use `namespace BankRecon.Bsui.Shared.Components.Common;`
+- **Bootstrap 5 only** — No MudBlazor or other UI libraries
+- **Parameter naming** — Use clear, descriptive names (e.g., `OnViewDetails`, `Items`)
+- **Event naming** — Prefix with `On` (e.g., `OnActionClicked`, `OnSortChange`)
+- **CSS** — Use Bootstrap classes; inline styles only for component-specific styling
+- **Responsiveness** — Ensure mobile-friendly layouts using Bootstrap grid system
+- **Documentation** — Add `/// <summary>` comments to public parameters and methods
 
-## 📊 Audit & Soft Delete System
+### Example Component Structure
 
-### Overview
+```razor
+@namespace BankRecon.Bsui.Shared.Components.Common
+@typeparam TItem
 
-- ✅ **Automatic Change Tracking** — All create, update, delete operations automatically captured
-- ✅ **Soft Delete** — Deleted records marked as deleted, not permanently removed
-- ✅ **Query Filters** — Soft-deleted entities automatically excluded
-- ✅ **Audit Log Viewer** — UI pages available at `/auditlogs` and `/auditlogs/{id}`
+<div class="table-responsive">
+    <table class="table table-striped table-hover">
+        <thead class="table-dark">
+            <!-- Headers -->
+        </thead>
+        <tbody>
+            <!-- Body -->
+        </tbody>
+    </table>
+</div>
 
----
+@code {
+    /// <summary>
+    /// The collection of items to display.
+    /// </summary>
+    [Parameter]
+    public List<TItem> Items { get; set; } = new();
 
-## 🔍 Code Review Checklist
+    // ... more parameters
+}
+```
 
-Before submitting a PR, ensure:
+## 🔐 Code Standards
 
-- [ ] Code follows `.editorconfig` rules
-- [ ] Naming conventions are applied
-- [ ] No hardcoded values (use configuration)
-- [ ] Proper error handling (domain exceptions backend, `ApiResponse` handling in client)
-- [ ] AutoMapper profiles implemented via `IMapFrom<T>`
-- [ ] XML documentation on public methods
-- [ ] Domain layer remains dependency-free
-- [ ] Soft delete used for appropriate entities
-- [ ] Client service interface in `Features/Interfaces/`
-- [ ] Client service implementation in `Features/Services/`
-- [ ] Feature services registered in `DependencyInjection.cs`
-- [ ] Blazor feature has `_Imports.razor` with service injection
-- [ ] `MudChip` uses `T="string"` type parameter
-- [ ] `MudDataGrid` uses `PropertyColumn` / `TemplateColumn` (not `Column`)
-- [ ] Responsive design tested on mobile/desktop
-- [ ] Loading states and error handling implemented
-- [ ] Snackbar notifications for user feedback
+This project enforces strict code standards via `.editorconfig`:
 
----
+- **Indentation:** 4 spaces
+- **Line endings:** CRLF (Windows)
+- **Character encoding:** UTF-8
+- **Naming conventions:** PascalCase (types), camelCase (locals)
+- **Namespaces:** File-scoped
+- **Null safety:** Nullable reference types enabled
 
-## 🚀 Git Workflow
+For detailed style rules, see the root `.editorconfig` file.
 
-1. **Create a feature branch**
-   ```bash
-   git checkout -b feature/your-feature-name
-   ```
+## 📖 Learning Resources
 
-2. **Commit with conventional format**
-   ```bash
-   git commit -m "feat: add your feature description"
-   ```
-
-**Types:** `feat`, `fix`, `docs`, `style`, `refactor`, `test`, `chore`
-
----
-
-## 📚 Resources
-
-- [Microsoft Learn - ASP.NET Core](https://learn.microsoft.com/en-us/aspnet/core/)
-- [Clean Architecture - Robert Martin](https://blog.cleancoder.com/uncle-bob/2012/08/13/the-clean-architecture.html)
-- [MediatR Documentation](https://github.com/jbogard/MediatR)
-- [FluentValidation](https://docs.fluentvalidation.net/)
-- [Entity Framework Core](https://docs.microsoft.com/en-us/ef/core/)
+- [Clean Architecture by Uncle Bob](https://blog.cleancoder.com/uncle-bob/2012/08/13/the-clean-architecture.html)
+- [Domain-Driven Design](https://www.domainlanguage.com/ddd/)
+- [MediatR - CQRS Pattern](https://github.com/jbogard/MediatR)
+- [Entity Framework Core Docs](https://docs.microsoft.com/en-us/ef/core/)
 - [Blazor Documentation](https://docs.microsoft.com/en-us/aspnet/core/blazor/)
-- [MudBlazor Components](https://mudblazor.com/)
+- [Bootstrap 5 Documentation](https://getbootstrap.com/docs/5.0/)
+- [Bootstrap Icons](https://icons.getbootstrap.com/)
+
+## 🧪 Testing
+
+### Running Tests
+
+```bash
+# Run all tests
+dotnet test
+
+# Run tests with coverage
+dotnet test /p:CollectCoverage=true
+```
+
+## 🤝 Contributing Workflow
+
+### Creating a New Feature
+
+1. **Define the domain entity** (in `BankRecon.Domain`)
+2. **Create entity configuration** (in `BankRecon.Infrastructure`)
+3. **Create DTOs and validators** (in `BankRecon.Application`)
+4. **Create MediatR handlers** (Commands/Queries)
+5. **Create API controller** (in `BankRecon.WebApi`)
+6. **Create client service** (in `BankRecon.Bsui.Client`)
+7. **Create Blazor pages** (in `BankRecon.Bsui/Features`)
+   - Use `DataTable` component for list pages
+   - Create feature-specific wrapper if customization needed
+
+### Using Reusable Components
+
+When building new features, **always leverage common components** to reduce code duplication:
+
+✅ **DO:**
+```razor
+<DataTable TItem="MyEntityDto" 
+           Items="@entities" 
+           Columns="@columns" 
+           Actions="@RenderActions" />
+```
+
+❌ **DON'T:**
+```razor
+<table class="table">
+    <thead>
+        <!-- Manual table markup -->
+    </thead>
+</table>
+```
+
+### Before Committing
+
+1. Ensure code follows `.editorconfig` rules
+2. Test the feature end-to-end
+3. Verify responsive design on mobile devices
+4. Update README.md and CONTRIBUTING.md if adding new components or phases
+5. Update the implementation status checklist
+
+## 📄 License
+
+This project is licensed under the MIT License — see the LICENSE file for details.
+
+## 👤 Author
+
+**Michael Laksa Kharisma** — [@mikeKharisma28](https://github.com/mikeKharisma28)
+
+## 📞 Support
+
+For issues, questions, or suggestions, please open an [issue](https://github.com/mikeKharisma28/BankRecon/issues) on GitHub.
 
 ---
 
-## 🙏 Thank You
-
-We appreciate your contributions to making BankRecon better!
+**Status:** 🚧 Under Development | **Current Phase:** Phase 5 — Reusable Components & Remaining UI Features In Progress | **Last Updated:** April 2026

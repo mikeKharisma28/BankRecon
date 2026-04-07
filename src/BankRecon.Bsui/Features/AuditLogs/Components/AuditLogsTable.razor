@@ -1,0 +1,106 @@
+@using BankRecon.Shared.Features.AuditLogs.Dtos
+@using BankRecon.Bsui.Common.Components.DataTable
+
+<DataTable TItem="AuditLogDto" Items="@AuditLogs" Columns="@columns" Actions="@RenderActions" />
+
+@code {
+    [Parameter]
+    public List<AuditLogDto> AuditLogs { get; set; } = new();
+
+    [Parameter]
+    public EventCallback<Guid> OnViewDetails { get; set; }
+
+    private List<DataTableColumn<AuditLogDto>> columns = new();
+
+    protected override void OnInitialized()
+    {
+        columns = new()
+        {
+            new()
+            {
+                Header = "Timestamp",
+                PropertyName = "Timestamp",
+                Property = x => x.Timestamp,
+                IsSortable = true,
+                CellTemplate = item => (RenderFragment)(builder =>
+                {
+                    builder.AddContent(0, item.Timestamp.ToString("g"));
+                })
+            },
+            new()
+            {
+                Header = "Entity",
+                PropertyName = "EntityName",
+                Property = x => x.EntityName,
+                IsSortable = true
+            },
+            new()
+            {
+                Header = "Entity ID",
+                PropertyName = "EntityId",
+                Property = x => x.EntityId,
+                IsSortable = false,
+                CellTemplate = item => (RenderFragment)(builder =>
+                {
+                    builder.OpenElement(0, "code");
+                    builder.AddAttribute(1, "style", "font-size: 0.85rem; max-width: 150px; display: inline-block; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;");
+                    builder.AddContent(2, item.EntityId);
+                    builder.CloseElement();
+                })
+            },
+            new()
+            {
+                Header = "Action",
+                PropertyName = "Action",
+                Property = x => x.Action,
+                IsSortable = true,
+                CellTemplate = item => (RenderFragment)(builder =>
+                {
+                    builder.OpenElement(0, "span");
+                    builder.AddAttribute(1, "class", $"badge {GetActionBadgeClass(item.Action)}");
+                    builder.AddContent(2, item.Action);
+                    builder.CloseElement();
+                })
+            },
+            new()
+            {
+                Header = "Performed By",
+                PropertyName = "PerformedBy",
+                Property = x => x.PerformedBy,
+                IsSortable = true,
+                CellTemplate = item => (RenderFragment)(builder =>
+                {
+                    if (string.IsNullOrEmpty(item.PerformedBy))
+                    {
+                        builder.OpenElement(0, "span");
+                        builder.AddAttribute(1, "class", "text-muted");
+                        builder.AddContent(2, "—");
+                        builder.CloseElement();
+                    }
+                    else
+                    {
+                        builder.AddContent(0, item.PerformedBy);
+                    }
+                })
+            }
+        };
+    }
+
+    private RenderFragment<AuditLogDto> RenderActions => item => (RenderFragment)(builder =>
+    {
+        builder.OpenElement(0, "button");
+        builder.AddAttribute(1, "class", "btn btn-sm btn-outline-primary");
+        builder.AddAttribute(2, "@onclick", EventCallback.Factory.Create(this, () => OnViewDetails.InvokeAsync(item.Id)));
+        builder.AddContent(3, "View");
+        builder.CloseElement();
+    });
+
+    private string GetActionBadgeClass(string action) =>
+        action switch
+        {
+            "Create" => "bg-success",
+            "Update" => "bg-warning text-dark",
+            "Delete" => "bg-danger",
+            _ => "bg-secondary"
+        };
+}
