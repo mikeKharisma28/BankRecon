@@ -8,38 +8,36 @@
 
 <PageTitle>Audit Logs</PageTitle>
 
-<div class="container mt-4">
-    <div class="row mb-4">
-        <div class="col-md-6">
-            <h2>Audit Logs</h2>
-        </div>
-        <div class="col-md-6 text-end">
-            <button class="btn btn-primary" @onclick="RefreshAsync" disabled="@isLoading">
-                <span class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true" style="display: @(isLoading ? "inline-block" : "none");"></span>
-                Refresh
-            </button>
-        </div>
+<div class="row mb-4">
+    <div class="col-md-6">
+        <h2>Audit Logs</h2>
     </div>
-
-    @if (isLoading)
-    {
-        <div class="placeholder-glow">
-            <div class="placeholder col-12 mb-2" style="height: 40px;"></div>
-            <div class="placeholder col-12 mb-2" style="height: 40px;"></div>
-            <div class="placeholder col-12" style="height: 40px;"></div>
-        </div>
-    }
-    else if (auditLogs == null || auditLogs.Count == 0)
-    {
-        <div class="alert alert-info" role="alert">
-            <strong>No audit logs found.</strong>
-        </div>
-    }
-    else
-    {
-        <AuditLogsTable AuditLogs="auditLogs" OnViewDetails="ViewDetails" />
-    }
+    <div class="col-md-6 text-end">
+        <button class="btn btn-primary" @onclick="RefreshAsync" disabled="@isLoading">
+            <span class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true" style="display: @(isLoading ? "inline-block" : "none");"></span>
+            Refresh
+        </button>
+    </div>
 </div>
+
+@if (isLoading)
+{
+    <div class="placeholder-glow">
+        <div class="placeholder col-12 mb-2" style="height: 40px;"></div>
+        <div class="placeholder col-12 mb-2" style="height: 40px;"></div>
+        <div class="placeholder col-12" style="height: 40px;"></div>
+    </div>
+}
+else if (auditLogs == null || auditLogs.Count == 0)
+{
+    <div class="alert alert-info" role="alert">
+        <strong>No audit logs found.</strong>
+    </div>
+}
+else
+{
+    <AuditLogsTable AuditLogs="auditLogs" OnViewDetails="ViewDetails" />
+}
 
 @code {
     private List<AuditLogDto> auditLogs = new();

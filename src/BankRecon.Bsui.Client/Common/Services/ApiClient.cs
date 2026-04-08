@@ -1,6 +1,8 @@
 using System.Net.Http.Json;
 using BankRecon.Bsui.Client.Common.Interfaces;
+using BankRecon.Bsui.Client.Common.Options;
 using BankRecon.Shared.Common.Responses;
+using Microsoft.Extensions.Options;
 
 namespace BankRecon.Bsui.Client.Common.Services;
 
@@ -11,10 +13,14 @@ namespace BankRecon.Bsui.Client.Common.Services;
 public class ApiClient : IApiClient
 {
     private readonly HttpClient _httpClient;
+    private readonly BackEndOptions _options;
 
-    public ApiClient(HttpClient httpClient)
+    public ApiClient(HttpClient httpClient, IOptions<BackEndOptions> options)
     {
         _httpClient = httpClient;
+        _options = options.Value;
+
+        _httpClient.BaseAddress = new Uri(_options.BaseUrl);
     }
 
     /// <inheritdoc />

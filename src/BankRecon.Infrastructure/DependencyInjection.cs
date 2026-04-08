@@ -12,8 +12,8 @@ public static class DependencyInjection
     public static IServiceCollection AddInfrastructure(this IServiceCollection services, IConfiguration configuration)
     {
         // Register DbContext
-        var connectionString = configuration.GetConnectionString("DefaultConnection")
-            ?? throw new InvalidOperationException("Connection string 'DefaultConnection' not found.");
+        var connectionString = configuration.GetConnectionString("SqlServer")
+            ?? throw new InvalidOperationException("Connection string 'SqlServer' not found.");
 
         services.AddDbContext<BankReconDbContext>(options =>
             options.UseSqlServer(
